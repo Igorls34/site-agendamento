@@ -78,14 +78,32 @@ WSGI_APPLICATION = 'agendamento.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Configuração de banco para desenvolvimento e produção
-if os.environ.get('DATABASE_URL'):
-    # Produção (Railway) - PostgreSQL
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-    }
+# Configuração de banco: forçar PostgreSQL em produção
+if 'RAILWAY_ENVIRONMENT' in os.environ or 'DATABASE_URL' in os.environ:
+    # Produção (Railway) - PostgreSQL obrigatório
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        DATABASES = {
+            'default': dj_database_url.parse(
+                database_url,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    else:
+        # Fallback para PostgreSQL padrão se DATABASE_URL não estiver definida
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.environ.get('PGDATABASE', 'railway'),
+                'USER': os.environ.get('PGUSER', 'postgres'),
+                'PASSWORD': os.environ.get('PGPASSWORD', ''),
+                'HOST': os.environ.get('PGHOST', 'localhost'),
+                'PORT': os.environ.get('PGPORT', '5432'),
+            }
+        }
 else:
-    # Desenvolvimento - SQLite
+    # Desenvolvimento - SQLite apenas
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -181,3 +199,41 @@ DEFAULT_DAILY_TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
 
 # WhatsApp Business
 WHATSAPP_BUSINESS_NUMBER = "5524998190280"  # +55 24 99819-0280
+
+# Configurações específicas para Railway (produção)
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    # Forçar configurações de produção
+    DEBUG = False
+    ALLOWED_HOSTS = ['*']
+    
+    # Configurações de segurança
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'
+    
+    # Configuração de arquivos estáticos para Railway
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # Logging para Railway
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+        },
+    }
