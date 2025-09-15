@@ -1,0 +1,150 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Meus Agendamentos - Sistema de Agendamento{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            
+            <!-- Cabeçalho -->
+            <div class="text-center mb-4">
+                <h1 class="h4 text-primary mb-2">
+                    <i class="bi bi-search me-2"></i>
+                    Meus Agendamentos
+                </h1>
+                <p class="text-muted small">Consulte seus agendamentos pelo telefone</p>
+            </div>
+
+            <!-- Formulário de Consulta -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <form method="get">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="phone" class="form-label fw-bold">
+                                    <i class="bi bi-telephone me-1"></i>Telefone (WhatsApp)
+                                </label>
+                                <input type="tel" class="form-control form-control-lg" id="phone" name="phone" 
+                                       value="{{ phone }}" placeholder="(11) 99999-9999" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg py-3">
+                                        <i class="bi bi-search me-2"></i>
+                                        Consultar Agendamentos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resultados da Consulta -->
+            {% if phone %}
+                {% if bookings %}
+                    <!-- Informações da consulta -->
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <span>
+                                <strong>{{ bookings|length }}</strong> agendamento{{ bookings|length|pluralize }} 
+                                encontrado{{ bookings|length|pluralize }} para <strong>{{ phone }}</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Agendamentos -->
+                    <div class="row g-3">
+                        {% for booking in bookings %}
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-3">
+                                    <!-- Cabeçalho do agendamento -->
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="text-primary mb-0">{{ booking.service.name }}</h6>
+                                        <span class="badge bg-{% if booking.status == 'CONFIRMED' %}success{% elif booking.status == 'PENDING' %}warning{% else %}secondary{% endif %}">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- Detalhes -->
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Data</small>
+                                            <strong>{{ booking.date|date:"d/m/Y" }}</strong><br>
+                                            <small class="text-muted">{{ booking.date|date:"l" }}</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Horário</small>
+                                            <strong>{{ booking.start_time|default:booking.time|time:"H:i" }}</strong><br>
+                                            <small class="text-muted">{{ booking.service.duration_minutes }}min</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Valor</small>
+                                            <strong class="text-success">R$ {{ booking.service.price_real|floatformat:2 }}</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Agendado em</small>
+                                            <small>{{ booking.created_at|date:"d/m H:i" }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Ações -->
+                                    <div class="d-grid">
+                                        <a href="{% url 'bookings:whatsapp_redirect' booking.id %}" 
+                                           class="btn btn-success">
+                                            <i class="bi bi-whatsapp me-2"></i>
+                                            Confirmar no WhatsApp
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                {% else %}
+                    <!-- Nenhum agendamento encontrado -->
+                    <div class="alert alert-warning border-0 shadow-sm text-center">
+                        <i class="bi bi-exclamation-triangle mb-2" style="font-size: 2rem;"></i>
+                        <h6>Nenhum agendamento encontrado</h6>
+                        <p class="mb-3">Não encontramos agendamentos para o telefone <strong>{{ phone }}</strong></p>
+                        <a href="{% url 'bookings:agenda' %}" class="btn btn-primary">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            Fazer Novo Agendamento
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Botão Voltar -->
+            <div class="text-center mt-4">
+                <a href="{% url 'bookings:home' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Voltar ao Início
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Formatação automática do telefone
+document.getElementById('phone').addEventListener('input', function (e) {
+    let x = e.target.value.replace(/\D/g, '');
+    if (x.length >= 11) {
+        x = x.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (x.length >= 7) {
+        x = x.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (x.length >= 3) {
+        x = x.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+    }
+    e.target.value = x;
+});
+</script>
+{% endblock %}

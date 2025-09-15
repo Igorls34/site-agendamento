@@ -1,0 +1,65 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Início - Agendamento{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-primary">
+                <i class="bi bi-calendar-heart me-3"></i>
+                Bem-vindo ao Sistema de Agendamento
+            </h1>
+            <p class="lead text-muted">
+                Escolha um de nossos serviços e agende seu horário de forma rápida e fácil
+            </p>
+        </div>
+
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-gear-fill text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">{{ service.name }}</h5>
+                        <p class="card-text text-muted">
+                            <strong>Duração:</strong> {{ service.duration_minutes }} minutos<br>
+                            <strong>Valor:</strong> R$ {{ service.price_real|floatformat:2 }}
+                        </p>
+                        <a href="{% url 'bookings:agendar' %}?service={{ service.id }}" 
+                           class="btn btn-primary btn-lg">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            Agendar Agora
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Nenhum serviço disponível no momento.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-5 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-search me-2"></i>
+                        Já tem um agendamento?
+                    </h5>
+                    <p class="card-text">Consulte seus agendamentos informando seu telefone</p>
+                    <a href="{% url 'bookings:meus_agendamentos' %}" class="btn btn-outline-primary">
+                        Ver Meus Agendamentos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

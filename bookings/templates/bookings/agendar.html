@@ -1,0 +1,189 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Agendar - Sistema de Agendamento{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            
+            <!-- Cabeçalho -->
+            <div class="text-center mb-4">
+                <h1 class="h4 text-primary mb-2">
+                    <i class="bi bi-calendar-plus me-2"></i>
+                    Novo Agendamento
+                </h1>
+                <p class="text-muted small">Escolha o serviço, data e horário desejado</p>
+            </div>
+
+            <!-- Formulário de Filtro (Serviço + Data) -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <form method="GET" id="filtroForm">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="service" class="form-label fw-bold">
+                                    <i class="bi bi-gear me-1"></i>Serviço
+                                </label>
+                                <select class="form-select form-select-lg" id="service" name="service" 
+                                        onchange="document.getElementById('filtroForm').submit()">
+                                    {% for svc in services %}
+                                    <option value="{{ svc.id }}" {% if svc.id == selected_service_id %}selected{% endif %}>
+                                        {{ svc.name }} - R$ {{ svc.price_real|floatformat:2 }} ({{ svc.duration_minutes }}min)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="date" class="form-label fw-bold">
+                                    <i class="bi bi-calendar me-1"></i>Data
+                                </label>
+                                <input type="date" class="form-control form-control-lg" id="date" name="date" 
+                                       value="{{ date|date:'Y-m-d' }}" min="{{ date|date:'Y-m-d' }}"
+                                       onchange="document.getElementById('filtroForm').submit()">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Horários Disponíveis -->
+            {% if service and free_times %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-clock me-2"></i>
+                        Horários Disponíveis - {{ date|date:"d/m/Y (l)" }}
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <form method="POST" action="{% url 'bookings:reservar' %}" id="agendamentoForm">
+                        {% csrf_token %}
+                        
+                        <!-- Campos ocultos -->
+                        <input type="hidden" name="service_id" value="{{ service.id }}">
+                        <input type="hidden" name="date" value="{{ date|date:'Y-m-d' }}">
+                        <input type="hidden" name="time" id="selected_time" value="">
+
+                        <!-- Grade de Horários -->
+                        <div class="mb-4">
+                            <div class="row g-2">
+                                {% for time in free_times %}
+                                <div class="col-6 col-md-4">
+                                    <input type="radio" class="btn-check" name="time_radio" 
+                                           value="{{ time|time:'H:i' }}" id="time_{{ forloop.counter }}" required>
+                                    <label class="btn btn-outline-primary w-100 py-3 time-btn" 
+                                           for="time_{{ forloop.counter }}">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ time|time:"H:i" }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Dados do Cliente -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label for="name" class="form-label fw-bold">
+                                    <i class="bi bi-person me-1"></i>Nome Completo
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="name" name="name" 
+                                       placeholder="Seu nome completo" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="phone" class="form-label fw-bold">
+                                    <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                                </label>
+                                <input type="tel" class="form-control form-control-lg" id="phone" name="phone" 
+                                       placeholder="(11) 99999-9999" required>
+                            </div>
+                        </div>
+
+                        <!-- Botão de Confirmação -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg py-3" id="btnConfirmar" disabled>
+                                <i class="bi bi-whatsapp me-2"></i>
+                                Confirmar Agendamento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% elif service %}
+            <!-- Nenhum horário disponível -->
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Nenhum horário disponível</strong><br>
+                <small>Tente outra data ou entre em contato conosco</small>
+            </div>
+            
+            {% else %}
+            <!-- Nenhum serviço -->
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                Nenhum serviço disponível no momento
+            </div>
+            {% endif %}
+
+            <!-- Botão Voltar -->
+            <div class="text-center mt-4">
+                <a href="{% url 'bookings:home' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Voltar ao Início
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Formatação automática do telefone
+document.getElementById('phone').addEventListener('input', function (e) {
+    let x = e.target.value.replace(/\D/g, '');
+    if (x.length >= 11) {
+        x = x.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (x.length >= 7) {
+        x = x.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (x.length >= 3) {
+        x = x.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+    }
+    e.target.value = x;
+});
+
+// Controle dos botões de horário
+document.querySelectorAll('input[name="time_radio"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        // Atualizar campo oculto
+        document.getElementById('selected_time').value = this.value;
+        
+        // Habilitar botão de confirmação
+        document.getElementById('btnConfirmar').disabled = false;
+        
+        // Feedback visual
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline-primary');
+        });
+        
+        const label = document.querySelector(`label[for="${this.id}"]`);
+        label.classList.remove('btn-outline-primary');
+        label.classList.add('btn-primary');
+    });
+});
+
+// Verificar se horário está selecionado antes de enviar
+document.getElementById('agendamentoForm').addEventListener('submit', function(e) {
+    const selectedTime = document.getElementById('selected_time').value;
+    if (!selectedTime) {
+        e.preventDefault();
+        alert('Por favor, selecione um horário.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

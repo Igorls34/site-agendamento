@@ -1,0 +1,127 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Editar Agendamento - Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>
+                    Editar Agendamento
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Informações atuais do agendamento -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle me-2"></i>Informações Atuais:</h6>
+                    <strong>Cliente:</strong> {{ booking.customer_name }}<br>
+                    <strong>Telefone:</strong> {{ booking.customer_phone }}<br>
+                    <strong>Serviço:</strong> {{ booking.service.name }}<br>
+                    <strong>Data/Hora:</strong> {{ booking.date|date:"d/m/Y" }} às {{ booking.start_time|default:booking.time|time:"H:i" }}<br>
+                    <strong>Status:</strong> {{ booking.get_status_display }}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="new_date" class="form-label">Nova Data</label>
+                            <input type="date" class="form-control" id="new_date" name="new_date" 
+                                   value="{{ booking.date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="new_time" class="form-label">Novo Horário</label>
+                            <input type="time" class="form-control" id="new_time" name="new_time" 
+                                   value="{{ booking.start_time|default:booking.time|time:'H:i' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="PENDING" {% if booking.status == 'PENDING' %}selected{% endif %}>
+                                Pendente
+                            </option>
+                            <option value="CONFIRMED" {% if booking.status == 'CONFIRMED' %}selected{% endif %}>
+                                Confirmado
+                            </option>
+                            <option value="CANCELLED" {% if booking.status == 'CANCELLED' %}selected{% endif %}>
+                                Cancelado
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'bookings:admin_agenda' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Horários disponíveis -->
+        {% if available_slots %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-clock me-2"></i>
+                    Horários Disponíveis (próximos 14 dias)
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% regroup available_slots by date as slots_by_date %}
+                    {% for date_group in slots_by_date %}
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">{{ date_group.grouper|date:"d/m/Y (l)" }}</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for slot in date_group.list %}
+                            <span class="badge bg-success schedule-option" 
+                                  data-date="{{ slot.date|date:'Y-m-d' }}" 
+                                  data-time="{{ slot.time|time:'H:i' }}"
+                                  style="cursor: pointer;">
+                                {{ slot.time|time:"H:i" }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Permitir clicar nos horários disponíveis para preencher automaticamente
+document.querySelectorAll('.schedule-option').forEach(function(element) {
+    element.addEventListener('click', function() {
+        const date = this.getAttribute('data-date');
+        const time = this.getAttribute('data-time');
+        
+        document.getElementById('new_date').value = date;
+        document.getElementById('new_time').value = time;
+        
+        // Visual feedback
+        document.querySelectorAll('.schedule-option').forEach(el => {
+            el.classList.remove('bg-primary');
+            el.classList.add('bg-success');
+        });
+        this.classList.remove('bg-success');
+        this.classList.add('bg-primary');
+    });
+});
+</script>
+{% endblock %}

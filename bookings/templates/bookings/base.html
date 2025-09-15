@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agendamento{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Mobile-First CSS */
+        body {
+            background-color: #f8f9fa;
+            font-size: 16px; /* Base font size for mobile */
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-lg {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+        }
+        
+        /* Botões grandes para touch */
+        .time-btn {
+            min-height: 50px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .time-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,102,204,0.2);
+        }
+        
+        /* Inputs maiores para mobile */
+        .form-control-lg, .form-select-lg {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+        
+        .form-control, .form-select {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #0066cc;
+            box-shadow: 0 0 0 0.2rem rgba(0,102,204,0.15);
+        }
+        
+        /* Container responsivo */
+        .container-fluid {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        /* Cores personalizadas */
+        .btn-primary {
+            background-color: #0066cc;
+            border-color: #0066cc;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0052a3;
+            border-color: #0052a3;
+        }
+        
+        .text-primary {
+            color: #0066cc !important;
+        }
+        
+        .bg-primary {
+            background-color: #0066cc !important;
+        }
+        
+        /* Navbar mobile */
+        .navbar {
+            padding: 12px 16px;
+        }
+        
+        .navbar-nav .nav-link {
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* Cards com espaçamento adequado */
+        .card-body {
+            padding: 20px;
+        }
+        
+        .card-header {
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        /* Alerts responsivos */
+        .alert {
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        /* Footer ajustado */
+        footer {
+            margin-top: 2rem;
+            padding: 20px 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .container-fluid {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            
+            .card-body {
+                padding: 2rem;
+            }
+            
+            .card-header {
+                padding: 1.5rem 2rem;
+            }
+        }
+        
+        /* Loading states */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Form improvements */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        
+        /* Radio button improvements */
+        .btn-check:checked + .btn {
+            background-color: #0066cc;
+            border-color: #0066cc;
+            color: white;
+        }
+        
+        /* Grid spacing */
+        .g-2 > *, .g-3 > * {
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (min-width: 576px) {
+            .g-2 > *, .g-3 > * {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'bookings:home' %}">
+                <i class="bi bi-calendar-check me-2"></i>Agendamento
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{% url 'bookings:home' %}">Início</a>
+                <a class="nav-link" href="{% url 'bookings:meus_agendamentos' %}">Meus Agendamentos</a>
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'bookings:admin_dashboard' %}">Admin</a>
+                    <a class="nav-link" href="{% url 'admin:logout' %}">Sair</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-light mt-5 py-4">
+        <div class="container text-center text-muted">
+            <p>&copy; 2025 Sistema de Agendamento. Desenvolvido para facilitar seus agendamentos.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
