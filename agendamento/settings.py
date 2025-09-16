@@ -81,6 +81,8 @@ WSGI_APPLICATION = 'agendamento.wsgi.application'
 
 # Configuração de banco: Railway usa DATABASE_URL obrigatoriamente
 database_url = os.environ.get('DATABASE_URL')
+railway_environment = os.environ.get('RAILWAY_ENVIRONMENT_NAME')
+
 if database_url:
     # Produção (Railway) - Usar DATABASE_URL fornecida pelo Railway
     DATABASES = {
@@ -90,12 +92,21 @@ if database_url:
             conn_health_checks=True,
         )
     }
-else:
-    # Erro crítico: Railway DEVE ter DATABASE_URL configurada
+elif railway_environment:
+    # Estamos no Railway mas sem DATABASE_URL - erro crítico
     import sys
     print("ERRO: DATABASE_URL não encontrada! Railway requer PostgreSQL.")
     print("Configure DATABASE_URL no Railway com o banco PostgreSQL.")
+    print("Vá em: Dashboard → + New → Database → Add PostgreSQL")
     sys.exit(1)
+else:
+    # Desenvolvimento local - SQLite OK
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
