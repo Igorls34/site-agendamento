@@ -79,30 +79,17 @@ WSGI_APPLICATION = 'agendamento.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Configuração de banco: forçar PostgreSQL em produção
-if 'RAILWAY_ENVIRONMENT' in os.environ or 'DATABASE_URL' in os.environ:
-    # Produção (Railway) - PostgreSQL obrigatório
-    database_url = os.environ.get('DATABASE_URL')
-    if database_url:
-        DATABASES = {
-            'default': dj_database_url.parse(
-                database_url,
-                conn_max_age=600,
-                conn_health_checks=True,
-            )
-        }
-    else:
-        # Fallback para PostgreSQL padrão se DATABASE_URL não estiver definida
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.environ.get('PGDATABASE', 'railway'),
-                'USER': os.environ.get('PGUSER', 'postgres'),
-                'PASSWORD': os.environ.get('PGPASSWORD', ''),
-                'HOST': os.environ.get('PGHOST', 'localhost'),
-                'PORT': os.environ.get('PGPORT', '5432'),
-            }
-        }
+# Configuração de banco: Railway usa DATABASE_URL obrigatoriamente
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    # Produção (Railway) - Usar DATABASE_URL fornecida pelo Railway
+    DATABASES = {
+        'default': dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
 else:
     # Desenvolvimento - SQLite apenas
     DATABASES = {
