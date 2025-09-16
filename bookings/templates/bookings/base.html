@@ -186,7 +186,7 @@
                 <a class="nav-link" href="{% url 'bookings:home' %}">Início</a>
                 <a class="nav-link" href="{% url 'bookings:meus_agendamentos' %}">Meus Agendamentos</a>
                 {% if user.is_authenticated %}
-                    <a class="nav-link" href="{% url 'bookings:admin_dashboard' %}">Admin</a>
+                    <a class="nav-link" href="{% url 'admin_panel:dashboard' %}">Admin</a>
                     <a class="nav-link" href="{% url 'admin:logout' %}">Sair</a>
                 {% endif %}
             </div>

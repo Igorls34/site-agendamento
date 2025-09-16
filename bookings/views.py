@@ -339,7 +339,7 @@ def admin_editar_booking(request, booking_id):
                 
                 if conflict_exists:
                     messages.error(request, 'Horário não disponível. Escolha outro horário.')
-                    return redirect('bookings:admin_editar_booking', booking_id=booking.id)
+                    return redirect('admin_panel:editar_booking', booking_id=booking.id)
             
             # Atualizar booking
             booking.date = new_date
@@ -349,7 +349,7 @@ def admin_editar_booking(request, booking_id):
             booking.save()
             
             messages.success(request, 'Agendamento atualizado com sucesso!')
-            return redirect('bookings:admin_agenda')
+            return redirect('admin_panel:agenda')
             
         except ValueError:
             messages.error(request, 'Data ou horário inválido.')
