@@ -326,6 +326,25 @@ def admin_editar_booking(request, booking_id):
     return render(request, 'bookings/admin/editar_booking.html', context)
 
 
+def favicon_view(request):
+    """Serve um favicon simples para evitar erro 404/500"""
+    # SVG simples de um calendário
+    svg_content = '''<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="32" height="32" rx="4" fill="#007bff"/>
+<rect x="6" y="10" width="20" height="16" rx="2" fill="white"/>
+<rect x="8" y="12" width="2" height="2" fill="#007bff"/>
+<rect x="12" y="12" width="2" height="2" fill="#007bff"/>
+<rect x="16" y="12" width="2" height="2" fill="#007bff"/>
+<rect x="20" y="12" width="2" height="2" fill="#007bff"/>
+<rect x="8" y="16" width="2" height="2" fill="#007bff"/>
+<rect x="12" y="16" width="2" height="2" fill="#007bff"/>
+<rect x="16" y="16" width="2" height="2" fill="#007bff"/>
+<rect x="8" y="20" width="2" height="2" fill="#007bff"/>
+<rect x="12" y="20" width="2" height="2" fill="#007bff"/>
+</svg>'''
+    return HttpResponse(svg_content, content_type='image/svg+xml')
+
+
 # Manter compatibilidade com URLs antigas
 agendar = agenda_view
 reservar = reservar_view
