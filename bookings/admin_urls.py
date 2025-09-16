@@ -11,5 +11,9 @@ urlpatterns = [
     path('agendamento/<int:booking_id>/', professional_views.agendamento_detail, name='agendamento_detail'),
     path('agendamento/<int:booking_id>/status/', professional_views.update_status, name='update_status'),
     path('relatorios/', professional_views.relatorios, name='relatorios'),
+    path('relatorios/exportar-pdf/', professional_views.exportar_relatorio_pdf, name='exportar_pdf'),
+    path('relatorios/exportar-csv/', professional_views.exportar_csv, name='exportar_csv'),
     path('configuracoes/', professional_views.configuracoes, name='configuracoes'),
+    path('configuracoes/backup/', professional_views.backup_dados, name='backup_dados'),
+    path('configuracoes/limpar-antigos/', professional_views.limpar_dados_antigos, name='limpar_antigos'),
 ]

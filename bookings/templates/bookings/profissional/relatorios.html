@@ -288,11 +288,17 @@
     }
     
     function exportarCSV() {
-        window.open('/profissional/relatorios/export/csv/', '_blank');
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const url = `{% url 'profissional:exportar_csv' %}?start_date=${startDate}&end_date=${endDate}`;
+        window.open(url, '_blank');
     }
     
     function gerarPDF() {
-        window.open('/profissional/relatorios/export/pdf/', '_blank');
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        const url = `{% url 'profissional:exportar_pdf' %}?start_date=${startDate}&end_date=${endDate}`;
+        window.open(url, '_blank');
     }
 </script>
 {% endblock %}

@@ -11,11 +11,28 @@
 <!-- Navegação de Data -->
 <div class="card-mobile">
     <div class="card-body">
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between mb-3">
             <h6 class="mb-0">Selecionar Data</h6>
             <input type="date" class="form-control form-control-sm w-auto" 
                    value="{{ selected_date|date:'Y-m-d' }}" 
                    onchange="window.location.href='?date='+this.value">
+        </div>
+        
+        <!-- Navegação por Semana -->
+        <div class="week-navigation">
+            <div class="row g-1">
+                {% for day in week_days %}
+                <div class="col">
+                    <a href="?date={{ day.date|date:'Y-m-d' }}" 
+                       class="btn btn-sm w-100 {% if day.is_selected %}btn-primary{% elif day.is_today %}btn-outline-primary{% else %}btn-outline-secondary{% endif %}">
+                        <div class="text-center">
+                            <small>{{ day.name }}</small><br>
+                            <strong>{{ day.day }}</strong>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -163,7 +180,7 @@
     // Atualizar status do agendamento
     async function updateStatus(bookingId, status) {
         try {
-            const response = await fetch(`/profissional/agendamento/${bookingId}/update-status/`, {
+            const response = await fetch(`/profissional/agendamento/${bookingId}/status/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -217,4 +234,22 @@
         }
     });
 </script>
+
+<style>
+.week-navigation .btn {
+    border-radius: 8px;
+    padding: 8px 4px;
+    line-height: 1.2;
+}
+
+.week-navigation .btn small {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.week-navigation .btn strong {
+    font-size: 1rem;
+    font-weight: 600;
+}
+</style>
 {% endblock %}

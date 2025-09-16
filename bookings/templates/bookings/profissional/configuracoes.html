@@ -205,7 +205,7 @@
             </button>
             
             <button class="btn btn-outline-warning" onclick="limparDadosAntigos()">
-                <i class="bi bi-trash3"></i> Limpar Dados Antigos (90+ dias)
+                <i class="bi bi-trash3"></i> Limpar Dados Antigos (6+ meses)
             </button>
         </div>
         
@@ -243,16 +243,6 @@
                 <span>Espaço usado:</span>
                 <span>{{ espaco_usado|default:"< 1" }} MB</span>
             </div>
-        </div>
-        
-        <div class="d-grid gap-2 mt-3">
-            <a href="/dev-admin-panel-2025/" class="btn btn-outline-dark" target="_blank">
-                <i class="bi bi-tools"></i> Painel Desenvolvedor
-            </a>
-            
-            <button class="btn btn-outline-danger" onclick="confirmarReset()">
-                <i class="bi bi-arrow-clockwise"></i> Reset Completo
-            </button>
         </div>
     </div>
 </div>
@@ -322,47 +312,31 @@
     }
     
     function exportarDados() {
-        window.open('/profissional/configuracoes/export-data/', '_blank');
+        window.open('{% url "profissional:backup_dados" %}', '_blank');
     }
     
     function backupAgendamentos() {
-        window.open('/profissional/configuracoes/backup-bookings/', '_blank');
+        window.open('{% url "profissional:backup_dados" %}', '_blank');
     }
     
     function limparDadosAntigos() {
-        if (confirm('Isso irá remover agendamentos com mais de 90 dias. Continuar?')) {
-            fetch('/profissional/configuracoes/clean-old-data/', {
+        if (confirm('Isso irá remover agendamentos com mais de 6 meses. Continuar?')) {
+            fetch('{% url "profissional:limpar_antigos" %}', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 }
-            }).then(response => {
-                if (response.ok) {
-                    alert('Dados antigos removidos com sucesso!');
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
                     location.reload();
+                } else {
+                    alert('Erro: ' + data.error);
                 }
+            }).catch(error => {
+                alert('Erro ao limpar dados antigos');
             });
-        }
-    }
-    
-    function confirmarReset() {
-        if (confirm('ATENÇÃO: Isso irá apagar TODOS os dados do sistema!\n\nTem certeza absoluta?')) {
-            if (confirm('Esta ação é IRREVERSÍVEL!\n\nDigite "CONFIRMAR" na próxima caixa para continuar.')) {
-                const confirmacao = prompt('Digite "CONFIRMAR" para prosseguir:');
-                if (confirmacao === 'CONFIRMAR') {
-                    fetch('/profissional/configuracoes/reset-system/', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        }
-                    }).then(response => {
-                        if (response.ok) {
-                            alert('Sistema resetado com sucesso!');
-                            window.location.href = '/';
-                        }
-                    });
-                }
-            }
         }
     }
 </script>

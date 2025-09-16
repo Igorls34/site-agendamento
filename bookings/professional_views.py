@@ -4,13 +4,21 @@ Interface moderna e otimizada para smartphones
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count, Sum, Q
+from datetime import date as date_cls, timedelta
 from django.conf import settings
 from datetime import datetime, timedelta, date as date_cls
 import json
+import csv
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 from .models import Booking, Service
 from .services import list_day_times, list_free_times
@@ -84,6 +92,19 @@ def agenda(request):
     else:
         selected_date = timezone.now().date()
     
+    # Calcular dias da semana atual
+    start_of_week = selected_date - timedelta(days=selected_date.weekday())
+    week_days = []
+    for i in range(7):
+        day = start_of_week + timedelta(days=i)
+        week_days.append({
+            'date': day,
+            'name': day.strftime('%a'),
+            'day': day.day,
+            'is_today': day == timezone.now().date(),
+            'is_selected': day == selected_date,
+        })
+    
     # Agendamentos do dia
     agendamentos = Booking.objects.filter(
         date=selected_date,
@@ -105,6 +126,7 @@ def agenda(request):
     
     context = {
         'selected_date': selected_date,
+        'week_days': week_days,
         'agendamentos': agendamentos,
         'available_times': available_times,
         'total_agendamentos': total_agendamentos,
@@ -395,3 +417,274 @@ def configuracoes(request):
     }
     
     return render(request, 'bookings/profissional/configuracoes.html', context)
+
+
+@login_required
+def exportar_relatorio_pdf(request):
+    """Exportar relatório em PDF"""
+    # Período de análise (pegar dos parâmetros ou usar padrão)
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    if start_date_str and end_date_str:
+        try:
+            start_date = date_cls.fromisoformat(start_date_str)
+            end_date = date_cls.fromisoformat(end_date_str)
+        except ValueError:
+            end_date = timezone.now().date()
+            start_date = end_date - timedelta(days=30)
+    else:
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=30)
+    
+    # Dados do relatório
+    agendamentos_periodo = Booking.objects.filter(
+        date__range=[start_date, end_date]
+    )
+    
+    total_agendamentos = agendamentos_periodo.count()
+    faturamento_total = agendamentos_periodo.filter(
+        status='CONFIRMED'
+    ).aggregate(
+        total=Sum('service__price_cents')
+    )['total'] or 0
+    faturamento_total = faturamento_total / 100
+    
+    confirmados = agendamentos_periodo.filter(status='CONFIRMED').count()
+    ticket_medio = faturamento_total / confirmados if confirmados > 0 else 0
+    
+    # Criar PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="relatorio_{start_date}_{end_date}.pdf"'
+    
+    # Configurar documento
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+    
+    # Título
+    title = Paragraph("Relatório de Agendamentos", styles['Title'])
+    story.append(title)
+    story.append(Spacer(1, 12))
+    
+    # Período
+    periodo_text = f"Período: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}"
+    periodo = Paragraph(periodo_text, styles['Normal'])
+    story.append(periodo)
+    story.append(Spacer(1, 12))
+    
+    # Resumo Executivo
+    resumo_title = Paragraph("Resumo Executivo", styles['Heading2'])
+    story.append(resumo_title)
+    story.append(Spacer(1, 6))
+    
+    # Dados principais em tabela
+    dados_principais = [
+        ['Métrica', 'Valor'],
+        ['Total de Agendamentos', str(total_agendamentos)],
+        ['Faturamento Total', f'R$ {faturamento_total:.2f}'],
+        ['Agendamentos Confirmados', str(confirmados)],
+        ['Ticket Médio', f'R$ {ticket_medio:.2f}'],
+    ]
+    
+    tabela_principais = Table(dados_principais)
+    tabela_principais.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    story.append(tabela_principais)
+    story.append(Spacer(1, 12))
+    
+    # Serviços mais procurados
+    servicos_title = Paragraph("Serviços Mais Procurados", styles['Heading2'])
+    story.append(servicos_title)
+    story.append(Spacer(1, 6))
+    
+    servicos_populares = Service.objects.annotate(
+        agendamentos_count=Count('booking', filter=Q(
+            booking__date__range=[start_date, end_date]
+        ))
+    ).filter(agendamentos_count__gt=0).order_by('-agendamentos_count')[:5]
+    
+    if servicos_populares:
+        dados_servicos = [['Serviço', 'Agendamentos', 'Preço']]
+        for service in servicos_populares:
+            dados_servicos.append([
+                service.name,
+                str(service.agendamentos_count),
+                f'R$ {service.price_real:.2f}'
+            ])
+        
+        tabela_servicos = Table(dados_servicos)
+        tabela_servicos.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        story.append(tabela_servicos)
+    else:
+        story.append(Paragraph("Nenhum serviço encontrado no período.", styles['Normal']))
+    
+    story.append(Spacer(1, 12))
+    
+    # Rodapé
+    rodape = Paragraph(f"Relatório gerado em {timezone.now().strftime('%d/%m/%Y às %H:%M')}", styles['Normal'])
+    story.append(rodape)
+    
+    # Gerar PDF
+    doc.build(story)
+    return response
+
+
+@login_required
+def exportar_csv(request):
+    """Exportar dados em CSV"""
+    # Período de análise
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    if start_date_str and end_date_str:
+        try:
+            start_date = date_cls.fromisoformat(start_date_str)
+            end_date = date_cls.fromisoformat(end_date_str)
+        except ValueError:
+            end_date = timezone.now().date()
+            start_date = end_date - timedelta(days=30)
+    else:
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=30)
+    
+    # Buscar agendamentos do período
+    agendamentos = Booking.objects.filter(
+        date__range=[start_date, end_date]
+    ).select_related('service').order_by('date', 'start_time')
+    
+    # Criar resposta CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="agendamentos_{start_date}_{end_date}.csv"'
+    
+    # Configurar UTF-8 BOM para Excel
+    response.write('\ufeff')
+    
+    writer = csv.writer(response)
+    
+    # Cabeçalho
+    writer.writerow([
+        'Data',
+        'Horário',
+        'Cliente',
+        'Telefone',
+        'Serviço',
+        'Preço',
+        'Status',
+        'Data Agendamento'
+    ])
+    
+    # Dados
+    for booking in agendamentos:
+        writer.writerow([
+            booking.date.strftime('%d/%m/%Y'),
+            booking.start_time.strftime('%H:%M'),
+            booking.customer_name,
+            booking.customer_phone,
+            booking.service.name,
+            f'R$ {booking.service.price_real:.2f}',
+            booking.get_status_display(),
+            booking.created_at.strftime('%d/%m/%Y %H:%M')
+        ])
+    
+    return response
+
+
+@login_required 
+def backup_dados(request):
+    """Fazer backup completo dos dados"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
+    
+    try:
+        # Dados dos agendamentos
+        agendamentos = []
+        for booking in Booking.objects.all().select_related('service'):
+            agendamentos.append({
+                'id': booking.id,
+                'data': booking.date.isoformat(),
+                'horario_inicio': booking.start_time.isoformat(),
+                'horario_fim': booking.end_time.isoformat(),
+                'cliente_nome': booking.customer_name,
+                'cliente_telefone': booking.customer_phone,
+                'servico': booking.service.name,
+                'preco': booking.service.price_real,
+                'status': booking.status,
+                'criado_em': booking.created_at.isoformat(),
+            })
+        
+        # Dados dos serviços
+        servicos = []
+        for service in Service.objects.all():
+            servicos.append({
+                'id': service.id,
+                'nome': service.name,
+                'preco': service.price_real,
+                'ativo': service.is_active,
+            })
+        
+        # Estrutura do backup
+        backup_data = {
+            'versao': '1.0',
+            'data_backup': timezone.now().isoformat(),
+            'agendamentos': agendamentos,
+            'servicos': servicos,
+        }
+        
+        # Resposta JSON para download
+        response = HttpResponse(
+            json.dumps(backup_data, indent=2, ensure_ascii=False),
+            content_type='application/json'
+        )
+        response['Content-Disposition'] = f'attachment; filename="backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def limpar_dados_antigos(request):
+    """Limpar agendamentos antigos (mais de 6 meses)"""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
+    
+    try:
+        # Data limite (6 meses atrás)
+        data_limite = timezone.now().date() - timedelta(days=180)
+        
+        # Buscar agendamentos antigos
+        agendamentos_antigos = Booking.objects.filter(date__lt=data_limite)
+        quantidade = agendamentos_antigos.count()
+        
+        # Deletar agendamentos antigos
+        agendamentos_antigos.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'{quantidade} agendamentos antigos foram removidos.',
+            'removidos': quantidade
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
