@@ -13,12 +13,18 @@ from django.conf import settings
 from datetime import datetime, timedelta, date as date_cls
 import json
 import csv
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.lib.units import inch
+
+# Imports condicionais para PDF
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
 
 from .models import Booking, Service
 from .services import list_day_times, list_free_times
@@ -422,6 +428,11 @@ def configuracoes(request):
 @login_required
 def exportar_relatorio_pdf(request):
     """Exportar relatório em PDF"""
+    if not PDF_AVAILABLE:
+        return JsonResponse({
+            'error': 'PDF não disponível. Biblioteca reportlab não instalada.'
+        }, status=500)
+    
     # Período de análise (pegar dos parâmetros ou usar padrão)
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
