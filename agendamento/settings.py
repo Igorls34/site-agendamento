@@ -25,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-vl@*&6ol)_i$a&8a-4=r71ibnqd*v(k-iwt*$dmra^$m4t)8eu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Temporariamente TRUE para debugging em produção
-DEBUG = True  # os.environ.get('DEBUG', 'True').lower() == 'true'
+# Produção: DEBUG = False para segurança
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['*']  # Aceitar todos os hosts temporariamente
 
