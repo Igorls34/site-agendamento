@@ -1,12 +1,95 @@
-# Sistema de Agendamento MVP 📅# Sistema de Agendamento MVP
+# 🗓️ Sistema de Agendamento MVP
 
+**Sistema completo de agendamento online com Django, PostgreSQL e integração WhatsApp**
 
+## 🚀 Sistema Online
 
-Sistema de agendamento Django com interface mobile-first, horários dinâmicos e integração WhatsApp.Um sistema simples e funcional para agendamento de serviços com integração ao WhatsApp.
+**📍 URL Principal:** https://site-agendamento-production.up.railway.app/
 
+---
 
+## 📋 Funcionalidades Principais
 
-## 🚀 Funcionalidades## 🚀 Funcionalidades
+### 👥 **Área Pública (Clientes)**
+- ✅ **Visualização de Serviços** - Lista de serviços disponíveis
+- ✅ **Agendamento Online** - Seleção de data, horário e serviço
+- ✅ **Integração WhatsApp** - Confirmação automática via WhatsApp
+- ✅ **Consulta de Agendamentos** - Verificar agendamentos existentes
+- ✅ **Design Responsivo** - Mobile-first, funciona em qualquer dispositivo
+
+### 🔧 **Área Administrativa**
+- ✅ **Painel Jazzmin** - Interface moderna em português
+- ✅ **Gestão de Serviços** - Criar, editar preços e durações
+- ✅ **Gestão de Agendamentos** - Visualizar, editar e cancelar
+- ✅ **Dashboard Diário** - Agenda do dia com horários
+- ✅ **Relatórios** - Visão geral dos agendamentos
+
+---
+
+## 🌐 URLs do Sistema
+
+### **🏠 Área Pública**
+| URL | Descrição | Funcionalidade |
+|-----|-----------|----------------|
+| `/` | **Página Inicial** | Lista de serviços e acesso ao agendamento |
+| `/agenda/` | **Agendar Serviço** | Formulário de agendamento completo |
+| `/meus-agendamentos/` | **Consultar Agendamentos** | Verificar agendamentos por telefone |
+| `/whatsapp/<id>/` | **Redirect WhatsApp** | Redireciona para WhatsApp com mensagem |
+
+### **⚙️ Área Administrativa**
+| URL | Descrição | Acesso |
+|-----|-----------|--------|
+| `/admin/` | **Login Administrativo** | admin / admin123 |
+| `/admin/bookings/service/` | **Gestão de Serviços** | Criar/editar serviços |
+| `/admin/bookings/booking/` | **Gestão de Agendamentos** | Visualizar todos os agendamentos |
+| `/admin-dashboard/` | **Dashboard do Dia** | Agenda de hoje |
+| `/admin-agenda/` | **Agenda Completa** | Visualização por período |
+
+### **🔍 URLs de Debug/Diagnóstico**
+| URL | Descrição | Finalidade |
+|-----|-----------|------------|
+| `/health/` | **Health Check** | Status do sistema e banco |
+| `/debug/` | **Debug Sistema** | Diagnóstico completo (desenvolvimento) |
+
+---
+
+## 👤 Credenciais de Acesso
+
+### **Administrador Principal**
+- **Usuário:** `admin`
+- **Senha:** `admin123`
+- **Acesso:** Painel administrativo completo
+
+---
+
+## 📱 Fluxo de Uso
+
+### **Para Clientes:**
+1. **Acessar** → https://site-agendamento-production.up.railway.app/
+2. **Escolher Serviço** → Ver lista de serviços disponíveis
+3. **Agendar** → Clicar em "Agendar" e preencher formulário
+4. **Confirmar** → Automaticamente enviado para WhatsApp
+5. **Acompanhar** → Consultar agendamentos quando necessário
+
+### **Para Administradores:**
+1. **Login** → /admin/ com credenciais
+2. **Dashboard** → Ver agenda do dia
+3. **Gerenciar** → Criar/editar serviços
+4. **Acompanhar** → Visualizar todos os agendamentos
+5. **Configurar** → Ajustar horários e preços
+
+---
+
+## � Status do Sistema
+
+| Componente | Status | Descrição |
+|------------|--------|-----------|
+| 🌐 **Site Público** | ✅ **Online** | Funcionando perfeitamente |
+| 🔧 **Admin** | ✅ **Online** | Painel completo em português |
+| 🗄️ **PostgreSQL** | ✅ **Conectado** | Banco estável no Railway |
+| 📱 **WhatsApp** | ✅ **Integrado** | Redirecionamento automático |
+| 🔒 **Segurança** | ✅ **HTTPS** | SSL/TLS configurado |
+| 📋 **Migrações** | ✅ **Auto** | Setup automático na primeira execução |
 
 
 

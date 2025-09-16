@@ -1,0 +1,327 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Mapa do Site - Sistema de Agendamento{% endblock %}
+
+{% block extra_css %}
+<style>
+    .url-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+    .url-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    .url-category {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    .url-badge {
+        font-family: 'Courier New', monospace;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-bold">
+                    <i class="bi bi-map text-primary"></i>
+                    Mapa do Site
+                </h1>
+                <p class="lead text-muted">
+                    Todas as funcionalidades e URLs do MVP de Agendamento
+                </p>
+            </div>
+
+            <!-- Navegação rápida -->
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <a href="{% url 'bookings:home' %}" class="btn btn-primary btn-lg w-100">
+                        🏠 Página Inicial
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'bookings:demo' %}" class="btn btn-info btn-lg w-100">
+                        📋 Demonstração
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/admin/" class="btn btn-warning btn-lg w-100" target="_blank">
+                        ⚙️ Admin Panel
+                    </a>
+                </div>
+            </div>
+
+            <!-- URLs por categoria -->
+            
+            <!-- Área Pública -->
+            <div class="card mb-4">
+                <div class="card-header url-category">
+                    <h4 class="mb-0">
+                        <i class="bi bi-globe2 me-2"></i>
+                        Área Pública do Cliente
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-house-door text-primary"></i>
+                                        Página Inicial
+                                    </h6>
+                                    <p class="card-text">Landing page principal do sistema</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:home' %}" class="btn btn-sm btn-outline-primary">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-calendar-event text-success"></i>
+                                        Fazer Agendamento
+                                    </h6>
+                                    <p class="card-text">Interface para agendar serviços</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /agenda/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:agenda' %}" class="btn btn-sm btn-outline-success">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-list-check text-info"></i>
+                                        Meus Agendamentos
+                                    </h6>
+                                    <p class="card-text">Consultar agendamentos por telefone</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /meus-agendamentos/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:meus_agendamentos' %}" class="btn btn-sm btn-outline-info">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-whatsapp text-success"></i>
+                                        WhatsApp
+                                    </h6>
+                                    <p class="card-text">Integração com WhatsApp para agendamentos</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /whatsapp/&lt;id&gt;/</code>
+                                    <br><br>
+                                    <span class="badge bg-secondary">Dinâmico</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área Administrativa -->
+            <div class="card mb-4">
+                <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Área Administrativa
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-gear text-warning"></i>
+                                        Painel Admin Django
+                                    </h6>
+                                    <p class="card-text">Interface administrativa completa (Jazzmin)</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /admin/</code>
+                                    <br><br>
+                                    <a href="/admin/" class="btn btn-sm btn-outline-warning" target="_blank">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-speedometer2 text-dark"></i>
+                                        Dashboard Admin
+                                    </h6>
+                                    <p class="card-text">Dashboard personalizado para administração</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /admin-dashboard/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:admin_dashboard' %}" class="btn btn-sm btn-outline-dark">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-calendar2-week text-primary"></i>
+                                        Agenda Admin
+                                    </h6>
+                                    <p class="card-text">Visualização e gestão da agenda</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /admin-agenda/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:admin_agenda' %}" class="btn btn-sm btn-outline-primary">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-pencil-square text-info"></i>
+                                        Editar Agendamento
+                                    </h6>
+                                    <p class="card-text">Edição de agendamentos específicos</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /admin-editar/&lt;id&gt;/</code>
+                                    <br><br>
+                                    <span class="badge bg-secondary">Dinâmico</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debug e Demonstração -->
+            <div class="card mb-4">
+                <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <h4 class="mb-0">
+                        <i class="bi bi-tools me-2"></i>
+                        Debug e Demonstração
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-heart-pulse text-success"></i>
+                                        Health Check
+                                    </h6>
+                                    <p class="card-text">Verificação de saúde do sistema</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /health/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:health_check' %}" class="btn btn-sm btn-outline-success">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-bug text-danger"></i>
+                                        Debug System
+                                    </h6>
+                                    <p class="card-text">Informações técnicas do sistema</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /debug/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:debug_system' %}" class="btn btn-sm btn-outline-danger">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card url-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-display text-info"></i>
+                                        Demonstração MVP
+                                    </h6>
+                                    <p class="card-text">Tour guiado pelas funcionalidades</p>
+                                    <code class="url-badge bg-light px-2 py-1 rounded">GET /demo/</code>
+                                    <br><br>
+                                    <a href="{% url 'bookings:demo' %}" class="btn btn-sm btn-outline-info">
+                                        Acessar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Técnicas -->
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-code-slash me-2"></i>
+                        Informações Técnicas
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-server text-primary"></i> Stack Tecnológico</h6>
+                            <ul class="list-unstyled">
+                                <li>• <strong>Backend:</strong> Django 5.x</li>
+                                <li>• <strong>Frontend:</strong> Bootstrap 5 + Icons</li>
+                                <li>• <strong>Admin:</strong> Jazzmin (português)</li>
+                                <li>• <strong>Deploy:</strong> Railway + PostgreSQL</li>
+                                <li>• <strong>Server:</strong> Gunicorn + Whitenoise</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-key text-warning"></i> Credenciais de Teste</h6>
+                            <ul class="list-unstyled">
+                                <li>• <strong>Admin:</strong> <code>admin</code></li>
+                                <li>• <strong>Senha:</strong> <code>admin123</code></li>
+                                <li>• <strong>Telefone teste:</strong> <code>(11) 99999-9999</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voltar -->
+            <div class="text-center mt-5">
+                <a href="{% url 'bookings:home' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    Voltar à Página Inicial
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

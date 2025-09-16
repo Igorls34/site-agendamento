@@ -1,13 +1,17 @@
 from django.urls import path
 from . import views
 from .debug_views import debug_system
+from .demo_views import demo_view
+from .sitemap_views import sitemap_view
 
 app_name = 'bookings'
 
 urlpatterns = [
-    # Debug e health check
+    # Debug e demonstração
     path('health/', views.health_check, name='health_check'),
     path('debug/', debug_system, name='debug_system'),
+    path('demo/', demo_view, name='demo'),
+    path('sitemap/', sitemap_view, name='sitemap'),
     
     # Área pública do cliente
     path('', views.home, name='home'),
