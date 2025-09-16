@@ -363,7 +363,7 @@ def configuracoes(request):
             return redirect('professional_configuracoes')
     
     # Dados para o template
-    services = Service.objects.all().order_by('-created_at')
+    services = Service.objects.all().order_by('name')
     
     # Dias da semana para horário de funcionamento
     days_of_week = [
