@@ -91,13 +91,11 @@ if database_url:
         )
     }
 else:
-    # Desenvolvimento - SQLite apenas
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    # Erro crítico: Railway DEVE ter DATABASE_URL configurada
+    import sys
+    print("ERRO: DATABASE_URL não encontrada! Railway requer PostgreSQL.")
+    print("Configure DATABASE_URL no Railway com o banco PostgreSQL.")
+    sys.exit(1)
 
 
 # Password validation
