@@ -15,7 +15,7 @@
             Perfil Profissional
         </h6>
         
-        <form method="post" action="{% url 'professional_configuracoes' %}">
+        <form method="post" action="{% url 'profissional:configuracoes' %}">
             {% csrf_token %}
             
             <div class="mb-3">
@@ -64,7 +64,7 @@
             Horário de Funcionamento
         </h6>
         
-        <form method="post" action="{% url 'professional_configuracoes' %}">
+        <form method="post" action="{% url 'profissional:configuracoes' %}">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="horarios">
             
@@ -121,7 +121,7 @@
                 <div class="flex-grow-1">
                     <div class="fw-semibold">{{ service.name }}</div>
                     <div class="text-success fw-bold">R$ {{ service.price_real|floatformat:2 }}</div>
-                    <small class="text-muted">Criado em {{ service.created_at|date:"d/m/Y" }}</small>
+                    <small class="text-muted">ID: {{ service.id }}</small>
                 </div>
                 <div class="dropdown">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
@@ -151,7 +151,7 @@
             Notificações
         </h6>
         
-        <form method="post" action="{% url 'professional_configuracoes' %}">
+        <form method="post" action="{% url 'profissional:configuracoes' %}">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="notifications">
             
@@ -265,7 +265,7 @@
                 <h5 class="modal-title">➕ Novo Serviço</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="post" action="{% url 'professional_configuracoes' %}">
+            <form method="post" action="{% url 'profissional:configuracoes' %}">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="add_service">
                 

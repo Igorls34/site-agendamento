@@ -360,7 +360,7 @@ def configuracoes(request):
             )
             
             messages.success(request, f'Serviço "{service_name}" adicionado com sucesso!')
-            return redirect('professional_configuracoes')
+            return redirect('profissional:configuracoes')
     
     # Dados para o template
     services = Service.objects.all().order_by('name')
