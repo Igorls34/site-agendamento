@@ -1,11 +1,13 @@
 from django.urls import path
 from . import views
+from .debug_views import debug_system
 
 app_name = 'bookings'
 
 urlpatterns = [
     # Debug e health check
     path('health/', views.health_check, name='health_check'),
+    path('debug/', debug_system, name='debug_system'),
     
     # Área pública do cliente
     path('', views.home, name='home'),
