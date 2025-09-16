@@ -142,11 +142,27 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
+# Idiomas suportados
+LANGUAGES = [
+    ('pt-br', 'Português (Brasil)'),
+    ('en', 'English'),
+]
+
+# Localização
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
 TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
+
+# Formato de data e hora brasileiro
+DATE_FORMAT = 'd/m/Y'
+DATETIME_FORMAT = 'd/m/Y H:i'
+TIME_FORMAT = 'H:i'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -170,19 +186,34 @@ DEFAULT_DAILY_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
 
 # Configurações do Jazzmin (Admin mais amigável)
 JAZZMIN_SETTINGS = {
-    "site_title": "Sistema Agendamento",
-    "site_header": "Agendamento",
-    "site_brand": "Agendamento",
+    "site_title": "Sistema de Agendamento",
+    "site_header": "Painel Administrativo",
+    "site_brand": "Sistema de Agendamento",
     "welcome_sign": "Bem-vindo ao Sistema de Agendamento",
-    "copyright": "Sistema de Agendamento",
+    "copyright": "Sistema de Agendamento © 2025",
     "search_model": ["bookings.Booking"],
     "topmenu_links": [
-        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Início", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "Agenda Hoje", "url": "/admin-dashboard/", "permissions": ["auth.view_user"]},
+        {"name": "Site Público", "url": "/", "new_window": True},
+    ],
+    "usermenu_links": [
+        {"name": "Ver Site Público", "url": "/", "new_window": True},
+        {"model": "auth.user"}
     ],
     "show_sidebar": True,
     "navigation_expanded": True,
-    "order_with_respect_to": ["bookings"],
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["bookings", "auth"],
+    "custom_links": {
+        "bookings": [{
+            "name": "Agenda do Dia", 
+            "url": "/admin-dashboard/", 
+            "icon": "fas fa-calendar-day",
+            "permissions": ["bookings.view_booking"]
+        }]
+    },
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -198,6 +229,8 @@ JAZZMIN_SETTINGS = {
     "custom_js": None,
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
 }
 
 # Configurações do sistema de agendamento

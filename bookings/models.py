@@ -5,9 +5,14 @@ from django.utils import timezone
 
 class Service(models.Model):
     """Serviços fixos: Serviço 1, 2 e 3"""
-    name = models.CharField(max_length=100)
-    price_cents = models.IntegerField(help_text="Preço em centavos")
-    duration_minutes = models.IntegerField(default=60, help_text="Duração em minutos")
+    name = models.CharField(max_length=100, verbose_name="Nome do Serviço")
+    price_cents = models.IntegerField(help_text="Preço em centavos", verbose_name="Preço (centavos)")
+    duration_minutes = models.IntegerField(default=60, help_text="Duração em minutos", verbose_name="Duração (minutos)")
+    
+    class Meta:
+        verbose_name = "Serviço"
+        verbose_name_plural = "Serviços"
+        ordering = ['name']
     
     def __str__(self):
         return self.name
@@ -48,19 +53,21 @@ class Booking(models.Model):
         ('CANCELLED', 'Cancelado'),
     ]
     
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    customer_name = models.CharField(max_length=200)
-    customer_phone = models.CharField(max_length=20, help_text="Apenas dígitos")
-    date = models.DateField()
-    start_time = models.TimeField(default='09:00:00', help_text="Horário de início")
-    end_time = models.TimeField(null=True, blank=True, help_text="Horário de fim (calculado automaticamente)")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, verbose_name="Serviço")
+    customer_name = models.CharField(max_length=200, verbose_name="Nome do Cliente")
+    customer_phone = models.CharField(max_length=20, help_text="Apenas dígitos", verbose_name="Telefone")
+    date = models.DateField(verbose_name="Data")
+    start_time = models.TimeField(default='09:00:00', help_text="Horário de início", verbose_name="Horário de Início")
+    end_time = models.TimeField(null=True, blank=True, help_text="Horário de fim (calculado automaticamente)", verbose_name="Horário de Fim")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING', verbose_name="Status")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Criado em")
     
     # Campo para compatibilidade com código antigo (será removido em migração futura)
-    time = models.TimeField(null=True, blank=True, help_text="DEPRECATED: use start_time")
+    time = models.TimeField(null=True, blank=True, help_text="DEPRECATED: use start_time", verbose_name="Horário (Antigo)")
     
     class Meta:
+        verbose_name = "Agendamento"
+        verbose_name_plural = "Agendamentos"
         ordering = ['-created_at']
         # Evitar duplos agendamentos no mesmo horário
         unique_together = ['service', 'date', 'start_time']
