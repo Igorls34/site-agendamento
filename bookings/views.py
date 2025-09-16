@@ -8,6 +8,7 @@ from django.db import transaction
 from django.conf import settings
 import traceback
 import sys
+import os
 from datetime import date as date_cls, datetime
 from .models import Service, Schedule, Booking
 from .services import list_free_times, list_day_times, is_time_available, string_to_time
@@ -18,6 +19,10 @@ def health_check(request):
     """View de health check para debugging"""
     try:
         # Testar conexão com banco
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        
         services_count = Service.objects.count()
         
         health_data = {
@@ -26,8 +31,19 @@ def health_check(request):
             'debug': settings.DEBUG,
             'database': 'Connected',
             'python_version': sys.version,
+            'allowed_hosts': settings.ALLOWED_HOSTS,
+            'database_url_exists': bool(os.environ.get('DATABASE_URL')),
         }
         return JsonResponse(health_data)
+    except Exception as e:
+        error_data = {
+            'status': 'ERROR',
+            'error': str(e),
+            'traceback': traceback.format_exc(),
+            'debug': settings.DEBUG,
+            'database_url_exists': bool(os.environ.get('DATABASE_URL')),
+        }
+        return JsonResponse(error_data, status=500)
     except Exception as e:
         return JsonResponse({
             'status': 'ERROR',

@@ -1,2 +1,2 @@
-web: python manage.py collectstatic --noinput && gunicorn agendamento.wsgi --bind 0.0.0.0:$PORT
-release: python manage.py migrate && python init_production.py
+web: gunicorn agendamento.wsgi --bind 0.0.0.0:$PORT
+release: python setup_production.py
