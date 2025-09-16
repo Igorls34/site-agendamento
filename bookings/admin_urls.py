@@ -4,6 +4,10 @@ from . import professional_views
 app_name = 'profissional'
 
 urlpatterns = [
+    # Login
+    path('login/', professional_views.login_view, name='login'),
+    path('logout/', professional_views.logout_view, name='logout'),
+    
     # Dashboard principal mobile-first
     path('', professional_views.dashboard, name='dashboard'),
     path('agenda/', professional_views.agenda, name='agenda'),

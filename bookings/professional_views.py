@@ -4,6 +4,7 @@ Interface moderna e otimizada para smartphones
 """
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.utils import timezone
@@ -17,6 +18,32 @@ import csv
 from .models import Booking, Service
 from .services import list_day_times, list_free_times
 from .utils import build_whatsapp_url
+
+
+def login_view(request):
+    """View de login para o painel profissional"""
+    if request.user.is_authenticated:
+        return redirect('profissional:dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_staff:
+            login(request, user)
+            next_url = request.GET.get('next', 'profissional:dashboard')
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Credenciais inválidas ou usuário sem permissão.')
+    
+    return render(request, 'bookings/profissional/login.html')
+
+
+def logout_view(request):
+    """View de logout"""
+    logout(request)
+    return redirect('home')
 
 
 @login_required

@@ -232,3 +232,8 @@ LOGGING = {
         },
     },
 }
+
+# URLs de redirecionamento de login
+LOGIN_URL = '/profissional/login/'
+LOGIN_REDIRECT_URL = '/profissional/'
+LOGOUT_REDIRECT_URL = '/'
