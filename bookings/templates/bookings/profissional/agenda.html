@@ -145,17 +145,6 @@
 </div>
 {% endif %}
 
-<!-- Navegação Rápida de Datas -->
-<div class="card-mobile">
-    <div class="card-body">
-        <h6 class="card-title">Navegar por Data</h6>
-        
-        <div class="d-flex gap-2 overflow-auto" id="date-navigation">
-            <!-- Navegação será gerada via JavaScript -->
-        </div>
-    </div>
-</div>
-
 {% if not agendamentos %}
 <div class="text-center py-5">
     <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
@@ -202,37 +191,6 @@
             alert('Erro ao atualizar status');
         }
     }
-    
-    // Adicionar filtro customizado adddays (simulado via JS para navegação)
-    document.addEventListener('DOMContentLoaded', function() {
-        // Gerar navegação dinâmica de datas
-        const currentDate = new Date('{{ selected_date|date:"Y-m-d" }}');
-        const navContainer = document.getElementById('date-navigation');
-        
-        if (navContainer) {
-            navContainer.innerHTML = ''; // Limpar
-            
-            for (let i = 0; i < 7; i++) {
-                const navDate = new Date(currentDate);
-                navDate.setDate(navDate.getDate() + i);
-                
-                const dateStr = navDate.toISOString().split('T')[0];
-                const isSelected = dateStr === '{{ selected_date|date:"Y-m-d" }}';
-                
-                const btn = document.createElement('a');
-                btn.href = `?date=${dateStr}`;
-                btn.className = `btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-primary'} flex-shrink-0`;
-                btn.innerHTML = `
-                    <div class="text-center">
-                        <div class="fw-bold">${navDate.getDate()}</div>
-                        <small>${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][navDate.getDay()]}</small>
-                    </div>
-                `;
-                
-                navContainer.appendChild(btn);
-            }
-        }
-    });
 </script>
 
 <style>
