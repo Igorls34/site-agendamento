@@ -14,18 +14,6 @@ from datetime import datetime, timedelta, date as date_cls
 import json
 import csv
 
-# Imports condicionais para PDF
-try:
-    from reportlab.pdfgen import canvas
-    from reportlab.lib.pagesizes import letter, A4
-    from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-    from reportlab.lib import colors
-    from reportlab.lib.units import inch
-    PDF_AVAILABLE = True
-except ImportError:
-    PDF_AVAILABLE = False
-
 from .models import Booking, Service
 from .services import list_day_times, list_free_times
 from .utils import build_whatsapp_url
@@ -428,7 +416,15 @@ def configuracoes(request):
 @login_required
 def exportar_relatorio_pdf(request):
     """Exportar relatório em PDF"""
-    if not PDF_AVAILABLE:
+    # Import dinâmico do reportlab apenas quando necessário
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib import colors
+        from reportlab.lib.units import inch
+    except ImportError:
         return JsonResponse({
             'error': 'PDF não disponível. Biblioteca reportlab não instalada.'
         }, status=500)
