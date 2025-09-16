@@ -4,6 +4,9 @@ from . import views
 app_name = 'bookings'
 
 urlpatterns = [
+    # Debug e health check
+    path('health/', views.health_check, name='health_check'),
+    
     # Área pública do cliente
     path('', views.home, name='home'),
     path('agenda/', views.agenda_view, name='agenda'),

@@ -25,9 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-vl@*&6ol)_i$a&8a-4=r71ibnqd*v(k-iwt*$dmra^$m4t)8eu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+# Temporariamente TRUE para debugging em produção
+DEBUG = True  # os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*'] if os.environ.get('RAILWAY_ENVIRONMENT') else ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']  # Aceitar todos os hosts temporariamente
 
 
 # Application definition
@@ -201,6 +202,8 @@ DEFAULT_DAILY_TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
 WHATSAPP_BUSINESS_NUMBER = "5524998190280"  # +55 24 99819-0280
 
 # Configurações específicas para Railway (produção)
+# Temporariamente comentado para debugging
+"""
 if 'RAILWAY_ENVIRONMENT' in os.environ:
     # Forçar configurações de produção
     DEBUG = False
@@ -215,25 +218,26 @@ if 'RAILWAY_ENVIRONMENT' in os.environ:
     
     # Configuração de arquivos estáticos para Railway
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+"""
     
-    # Logging para Railway
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
+# Logging para debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
-        'root': {
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'loggers': {
+        'django': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
+            'propagate': False,
         },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'INFO',
-                'propagate': False,
-            },
-        },
-    }
+    },
+}

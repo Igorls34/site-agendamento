@@ -1,20 +1,57 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.db import transaction
+from django.conf import settings
+import traceback
+import sys
 from datetime import date as date_cls, datetime
 from .models import Service, Schedule, Booking
 from .services import list_free_times, list_day_times, is_time_available, string_to_time
 from .utils import build_whatsapp_url, normalize_phone
 
 
+def health_check(request):
+    """View de health check para debugging"""
+    try:
+        # Testar conexão com banco
+        services_count = Service.objects.count()
+        
+        health_data = {
+            'status': 'OK',
+            'services_count': services_count,
+            'debug': settings.DEBUG,
+            'database': 'Connected',
+            'python_version': sys.version,
+        }
+        return JsonResponse(health_data)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'ERROR',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }, status=500)
+
+
 def home(request):
     """Página inicial com lista de serviços"""
-    services = Service.objects.all()
-    return render(request, 'bookings/home.html', {'services': services})
+    try:
+        services = Service.objects.all()
+        return render(request, 'bookings/home.html', {'services': services})
+    except Exception as e:
+        # Se der erro, retorna uma resposta simples para debug
+        return HttpResponse(f"""
+        <h1>Erro no Sistema de Agendamento</h1>
+        <p><strong>Erro:</strong> {str(e)}</p>
+        <p><strong>Debug:</strong> {settings.DEBUG}</p>
+        <p><strong>Traceback:</strong></p>
+        <pre>{traceback.format_exc()}</pre>
+        <hr>
+        <p><a href="/health/">Ver Health Check</a></p>
+        """, status=500)
 
 
 def agenda_view(request):
