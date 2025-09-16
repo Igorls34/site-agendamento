@@ -37,6 +37,9 @@ def dashboard(request):
     # Adicionar WhatsApp URLs
     for booking in proximos_agendamentos:
         booking.whatsapp_url = build_whatsapp_url(booking)
+        # Adicionar campos para compatibilidade com template
+        booking.customer_name = booking.name
+        booking.customer_phone = booking.phone
     
     # Agendamentos pendentes (precisam confirmação)
     pendentes = Booking.objects.filter(
@@ -45,6 +48,9 @@ def dashboard(request):
     
     for booking in pendentes:
         booking.whatsapp_url = build_whatsapp_url(booking)
+        # Adicionar campos para compatibilidade com template
+        booking.customer_name = booking.name
+        booking.customer_phone = booking.phone
     
     # Faturamento da semana
     start_week = today - timedelta(days=today.weekday())
@@ -65,6 +71,7 @@ def dashboard(request):
         'agendamentos_pendentes': pendentes,
         'faturamento_semana': faturamento_semana,
         'today': today,
+        'now': timezone.now(),  # Para timestamps completos
     }
     
     return render(request, 'bookings/profissional/dashboard.html', context)
