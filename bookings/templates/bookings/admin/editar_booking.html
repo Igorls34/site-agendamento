@@ -19,7 +19,7 @@
                     <strong>Cliente:</strong> {{ booking.customer_name }}<br>
                     <strong>Telefone:</strong> {{ booking.customer_phone }}<br>
                     <strong>Serviço:</strong> {{ booking.service.name }}<br>
-                    <strong>Data/Hora:</strong> {{ booking.date|date:"d/m/Y" }} às {{ booking.start_time|default:booking.time|time:"H:i" }}<br>
+                    <strong>Data/Hora:</strong> {{ booking.date|date:"d/m/Y" }} às {{ booking.start_time|time:"H:i" }}<br>
                     <strong>Status:</strong> {{ booking.get_status_display }}
                 </div>
 
@@ -35,7 +35,7 @@
                         <div class="col-md-6">
                             <label for="new_time" class="form-label">Novo Horário</label>
                             <input type="time" class="form-control" id="new_time" name="new_time" 
-                                   value="{{ booking.start_time|default:booking.time|time:'H:i' }}" required>
+                                   value="{{ booking.start_time|time:'H:i' }}" required>
                         </div>
                     </div>
 
@@ -55,7 +55,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{% url 'bookings:admin_agenda' %}" class="btn btn-outline-secondary me-md-2">
+                        <a href="{% url 'admin_panel:agenda' %}" class="btn btn-outline-secondary me-md-2">
                             <i class="bi bi-x-circle me-1"></i>
                             Cancelar
                         </a>

@@ -244,10 +244,14 @@ def admin_dashboard(request):
     ).count()
     slots_livres_hoje = total_slots_hoje - bookings_hoje
     
-    # Agendamentos recentes
+    # Agendamentos recentes com WhatsApp URLs
     agendamentos_recentes = Booking.objects.filter(
         status__in=['PENDING', 'CONFIRMED']
     ).select_related('service').order_by('-created_at')[:5]
+    
+    # Adicionar URL do WhatsApp para cada agendamento
+    for booking in agendamentos_recentes:
+        booking.whatsapp_url = build_whatsapp_url(booking)
     
     context = {
         'agendamentos_hoje': agendamentos_hoje,
@@ -282,6 +286,10 @@ def admin_agenda(request):
         date=selected_date, 
         status__in=['PENDING', 'CONFIRMED']
     ).select_related('service').order_by('start_time')
+    
+    # Adicionar URL do WhatsApp para cada agendamento
+    for booking in bookings:
+        booking.whatsapp_url = build_whatsapp_url(booking)
     
     # Calcular estatísticas do dia
     total_faturamento = sum(booking.service.price_real for booking in bookings)

@@ -184,53 +184,66 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configurações do sistema de agendamento
 DEFAULT_DAILY_TIMES = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"]
 
-# Configurações do Jazzmin (Admin mais amigável)
+# Configurações do Jazzmin (Admin mais amigável e mobile-first)
 JAZZMIN_SETTINGS = {
-    "site_title": "Sistema de Agendamento",
-    "site_header": "Painel Administrativo",
-    "site_brand": "Sistema de Agendamento",
-    "welcome_sign": "Bem-vindo ao Sistema de Agendamento",
+    "site_title": "Agendamento",
+    "site_header": "📅 Agendamento",
+    "site_brand": "📅 Agendamento",
+    "welcome_sign": "Bem-vindo ao Painel de Agendamento",
     "copyright": "Sistema de Agendamento © 2025",
     "search_model": ["bookings.Booking"],
+    
+    # Links simplificados
     "topmenu_links": [
-        {"name": "Início", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Agenda Hoje", "url": "/admin-dashboard/", "permissions": ["auth.view_user"]},
-        {"name": "Site Público", "url": "/", "new_window": True},
+        {"name": "🏠 Início", "url": "admin:index"},
+        {"name": "📋 Dashboard", "url": "/painel-admin/"},
+        {"name": "🌐 Site", "url": "/", "new_window": True},
     ],
+    
     "usermenu_links": [
-        {"name": "Ver Site Público", "url": "/", "new_window": True},
-        {"model": "auth.user"}
+        {"name": "🌐 Ver Site", "url": "/", "new_window": True},
     ],
+    
+    # Interface simplificada
     "show_sidebar": True,
-    "navigation_expanded": True,
+    "navigation_expanded": False,  # Sidebar contraída por padrão (mobile-first)
     "hide_apps": [],
     "hide_models": [],
     "order_with_respect_to": ["bookings", "auth"],
+    
+    # Links customizados simplificados
     "custom_links": {
         "bookings": [{
-            "name": "Agenda do Dia", 
-            "url": "/admin-dashboard/", 
-            "icon": "fas fa-calendar-day",
-            "permissions": ["bookings.view_booking"]
+            "name": "📊 Dashboard", 
+            "url": "/painel-admin/", 
+            "icon": "fas fa-chart-bar",
         }]
     },
+    
+    # Ícones simplificados
     "icons": {
-        "auth": "fas fa-users-cog",
+        "auth": "fas fa-user-shield",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
-        "bookings.Service": "fas fa-cogs",
+        "bookings.Service": "fas fa-cog",
         "bookings.Booking": "fas fa-calendar-check",
         "bookings.Schedule": "fas fa-clock",
     },
-    "default_icon_parents": "fas fa-chevron-circle-right",
+    
+    # UX simplificada
+    "default_icon_parents": "fas fa-angle-right",
     "default_icon_children": "fas fa-circle",
-    "related_modal_active": False,
-    "custom_css": None,
-    "custom_js": None,
-    "use_google_fonts_cdn": True,
+    "related_modal_active": True,  # Modais mais práticos
     "show_ui_builder": False,
-    "changeform_format": "horizontal_tabs",
-    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+    "changeform_format": "single",  # Layout simples
+    "changeform_format_overrides": {
+        "auth.user": "single", 
+        "bookings.booking": "single"
+    },
+    
+    # CSS customizado para mobile
+    "custom_css": "admin/css/custom_admin.css",
+    "use_google_fonts_cdn": True,
 }
 
 # Configurações do sistema de agendamento

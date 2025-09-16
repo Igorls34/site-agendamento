@@ -1,0 +1,130 @@
+/* CSS customizado para admin mobile-first */
+
+/* Mobile First - Base styles */
+@media (max-width: 768px) {
+    /* Sidebar compacta em mobile */
+    .main-sidebar {
+        width: 200px !important;
+    }
+    
+    /* Cards menores */
+    .card {
+        margin-bottom: 10px !important;
+    }
+    
+    /* Texto menor em mobile */
+    .card-title {
+        font-size: 1rem !important;
+    }
+    
+    .card-text {
+        font-size: 0.9rem !important;
+    }
+    
+    /* Botões maiores para touch */
+    .btn {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Tabelas responsivas */
+    .table {
+        font-size: 0.8rem !important;
+    }
+    
+    /* WhatsApp button styles */
+    .whatsapp-btn {
+        background-color: #25D366 !important;
+        border-color: #25D366 !important;
+        color: white !important;
+        padding: 4px 8px !important;
+        font-size: 0.8rem !important;
+        border-radius: 20px !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+    
+    .whatsapp-btn:hover {
+        background-color: #128C7E !important;
+        border-color: #128C7E !important;
+        color: white !important;
+    }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+    /* WhatsApp button para desktop */
+    .whatsapp-btn {
+        background-color: #25D366 !important;
+        border-color: #25D366 !important;
+        color: white !important;
+        padding: 6px 12px !important;
+        font-size: 0.9rem !important;
+        border-radius: 20px !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+    
+    .whatsapp-btn:hover {
+        background-color: #128C7E !important;
+        border-color: #128C7E !important;
+        color: white !important;
+        transform: scale(1.05) !important;
+        transition: all 0.2s ease !important;
+    }
+}
+
+/* Cores personalizadas */
+.card-primary {
+    border-color: #007bff !important;
+}
+
+.text-whatsapp {
+    color: #25D366 !important;
+}
+
+/* Melhorias gerais de UX */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border-radius: 8px !important;
+}
+
+.btn {
+    border-radius: 6px !important;
+}
+
+/* Status badges */
+.status-pending {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.status-confirmed {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+
+.status-cancelled {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* Layout improvements */
+.content-wrapper {
+    padding: 15px !important;
+}
+
+/* Form improvements */
+.form-control {
+    border-radius: 6px !important;
+    border: 1px solid #ddd !important;
+}
+
+.form-control:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+}

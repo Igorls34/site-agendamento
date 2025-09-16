@@ -20,6 +20,7 @@ from bookings.views import favicon_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('painel-admin/', include('bookings.admin_urls')),  # URLs admin separadas
     path('favicon.ico', favicon_view, name='favicon'),
     path('', include('bookings.urls')),
 ]

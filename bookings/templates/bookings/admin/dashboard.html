@@ -94,7 +94,7 @@
                         <i class="bi bi-calendar-check text-primary mb-3" style="font-size: 3rem;"></i>
                         <h5 class="card-title">Agenda do Dia</h5>
                         <p class="card-text">Visualize e gerencie os agendamentos de hoje</p>
-                        <a href="{% url 'bookings:admin_agenda' %}" class="btn btn-primary">
+                        <a href="{% url 'admin_panel:agenda' %}" class="btn btn-primary">
                             Ver Agenda
                         </a>
                     </div>
@@ -133,17 +133,28 @@
                         <tbody>
                             {% for booking in agendamentos_recentes %}
                             <tr>
-                                <td>{{ booking.customer_name }}</td>
+                                <td>
+                                    <strong>{{ booking.customer_name }}</strong><br>
+                                    <small class="text-muted">{{ booking.customer_phone }}</small>
+                                </td>
                                 <td>{{ booking.service.name }}</td>
-                                <td>{{ booking.date|date:"d/m/Y" }} {{ booking.time|time:"H:i" }}</td>
+                                <td>{{ booking.date|date:"d/m/Y" }} {{ booking.start_time|time:"H:i" }}</td>
                                 <td>
                                     <span class="badge bg-success">{{ booking.get_status_display }}</span>
                                 </td>
                                 <td>
-                                    <a href="{% url 'bookings:admin_editar_booking' booking.id %}" 
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{% url 'admin_panel:editar_booking' booking.id %}" 
+                                           class="btn btn-outline-primary" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ booking.whatsapp_url }}" 
+                                           class="btn whatsapp-btn" 
+                                           target="_blank" 
+                                           title="WhatsApp com {{ booking.customer_name }}">
+                                            <i class="bi bi-whatsapp"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
