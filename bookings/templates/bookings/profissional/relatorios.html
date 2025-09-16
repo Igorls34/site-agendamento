@@ -1,0 +1,298 @@
+{% extends 'bookings/profissional/base.html' %}
+
+{% block title %}Relatórios - Profissional{% endblock %}
+
+{% block header_title %}📊 Relatórios{% endblock %}
+{% block header_subtitle %}Análise do Negócio{% endblock %}
+
+{% block content %}
+
+<!-- Período de Análise -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="mb-3">📅 Período de Análise</h6>
+        
+        <div class="row g-2">
+            <div class="col-6">
+                <label class="form-label small">De:</label>
+                <input type="date" class="form-control form-control-sm" 
+                       value="{{ start_date|date:'Y-m-d' }}" 
+                       onchange="updatePeriod()">
+            </div>
+            <div class="col-6">
+                <label class="form-label small">Até:</label>
+                <input type="date" class="form-control form-control-sm" 
+                       value="{{ end_date|date:'Y-m-d' }}" 
+                       onchange="updatePeriod()">
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="setPeriod('today')">Hoje</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="setPeriod('week')">7 dias</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="setPeriod('month')">30 dias</button>
+        </div>
+    </div>
+</div>
+
+<!-- KPIs Principais -->
+<div class="row g-2 mb-3">
+    <div class="col-6">
+        <div class="stat-card">
+            <div class="stat-value text-success">R$ {{ faturamento_total|floatformat:0 }}</div>
+            <div class="stat-label">Faturamento</div>
+            <div class="stat-change positive">+{{ variacao_faturamento }}%</div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="stat-card">
+            <div class="stat-value text-primary">{{ total_agendamentos }}</div>
+            <div class="stat-label">Agendamentos</div>
+            <div class="stat-change positive">+{{ variacao_agendamentos }}%</div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="stat-card">
+            <div class="stat-value text-info">{{ taxa_confirmacao|floatformat:1 }}%</div>
+            <div class="stat-label">Taxa Confirmação</div>
+            <div class="stat-change {% if taxa_confirmacao >= 80 %}positive{% else %}negative{% endif %}">
+                {% if taxa_confirmacao >= 80 %}📈{% else %}📉{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="stat-card">
+            <div class="stat-value text-warning">R$ {{ ticket_medio|floatformat:0 }}</div>
+            <div class="stat-label">Ticket Médio</div>
+            <div class="stat-change positive">+{{ variacao_ticket }}%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de Faturamento -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-graph-up text-success me-2"></i>
+            Faturamento por Dia
+        </h6>
+        
+        <div class="chart-container">
+            <canvas id="faturamentoChart" width="100%" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Serviços Mais Procurados -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-trophy text-warning me-2"></i>
+            Serviços Mais Procurados
+        </h6>
+        
+        {% for service in servicos_populares %}
+        <div class="service-stat">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <div class="fw-semibold">{{ service.name }}</div>
+                    <small class="text-muted">{{ service.agendamentos_count }} agendamento{{ service.agendamentos_count|pluralize }}</small>
+                </div>
+                <div class="text-success fw-bold">R$ {{ service.faturamento_total|floatformat:0 }}</div>
+            </div>
+            <div class="progress mb-2" style="height: 6px;">
+                <div class="progress-bar bg-success" style="width: {{ service.percentage }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Horários de Pico -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-clock-history text-info me-2"></i>
+            Horários de Pico
+        </h6>
+        
+        <div class="row g-2">
+            {% for horario in horarios_pico %}
+            <div class="col-6 col-md-4">
+                <div class="text-center p-2 bg-light rounded">
+                    <div class="fw-bold text-info">{{ horario.hora }}h</div>
+                    <small class="text-muted">{{ horario.agendamentos }} agend.</small>
+                    <div class="progress mt-1" style="height: 4px;">
+                        <div class="progress-bar bg-info" style="width: {{ horario.percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Status dos Agendamentos -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-pie-chart text-primary me-2"></i>
+            Status dos Agendamentos
+        </h6>
+        
+        <div class="row g-2">
+            <div class="col-4">
+                <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                    <div class="text-success fw-bold fs-4">{{ confirmados_count }}</div>
+                    <small class="text-success">Confirmados</small>
+                    <div class="small text-muted">{{ confirmados_percent }}%</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                    <div class="text-warning fw-bold fs-4">{{ pendentes_count }}</div>
+                    <small class="text-warning">Pendentes</small>
+                    <div class="small text-muted">{{ pendentes_percent }}%</div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                    <div class="text-danger fw-bold fs-4">{{ cancelados_count }}</div>
+                    <small class="text-danger">Cancelados</small>
+                    <div class="small text-muted">{{ cancelados_percent }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clientes Fiéis -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-people text-primary me-2"></i>
+            Clientes Fiéis
+        </h6>
+        
+        {% for cliente in clientes_fieis %}
+        <div class="cliente-fiel-item">
+            <div class="d-flex align-items-center">
+                <div class="cliente-avatar">{{ cliente.name|first|upper }}</div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ cliente.name }}</div>
+                    <small class="text-muted">{{ cliente.phone }}</small>
+                </div>
+                <div class="text-end">
+                    <div class="text-primary fw-bold">{{ cliente.agendamentos_count }}</div>
+                    <small class="text-muted">agendamentos</small>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-success">💰 R$ {{ cliente.total_gasto|floatformat:0 }} gasto</small>
+                <small class="text-muted ms-2">📅 Último: {{ cliente.ultimo_agendamento|date:"d/m" }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Exportar Relatório -->
+<div class="card-mobile">
+    <div class="card-body text-center">
+        <h6 class="card-title">📄 Exportar Dados</h6>
+        
+        <div class="d-grid gap-2">
+            <button class="btn btn-outline-success" onclick="exportarCSV()">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV
+            </button>
+            <button class="btn btn-outline-primary" onclick="gerarPDF()">
+                <i class="bi bi-file-earmark-pdf"></i> Gerar PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Faturamento
+    const ctx = document.getElementById('faturamentoChart').getContext('2d');
+    const faturamentoChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for day in chart_days %}'{{ day.date|date:"d/m" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Faturamento (R$)',
+                data: [{% for day in chart_days %}{{ day.faturamento|floatformat:2 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                borderColor: '#198754',
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toFixed(0);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Funções de período
+    function setPeriod(period) {
+        const today = new Date();
+        let startDate, endDate;
+        
+        switch(period) {
+            case 'today':
+                startDate = endDate = today;
+                break;
+            case 'week':
+                startDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                endDate = today;
+                break;
+            case 'month':
+                startDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                endDate = today;
+                break;
+        }
+        
+        document.querySelector('input[type="date"]:first-of-type').value = startDate.toISOString().split('T')[0];
+        document.querySelector('input[type="date"]:last-of-type').value = endDate.toISOString().split('T')[0];
+        
+        updatePeriod();
+    }
+    
+    function updatePeriod() {
+        const startDate = document.querySelector('input[type="date"]:first-of-type').value;
+        const endDate = document.querySelector('input[type="date"]:last-of-type').value;
+        
+        if (startDate && endDate) {
+            window.location.href = `?start_date=${startDate}&end_date=${endDate}`;
+        }
+    }
+    
+    function exportarCSV() {
+        window.open('/profissional/relatorios/export/csv/', '_blank');
+    }
+    
+    function gerarPDF() {
+        window.open('/profissional/relatorios/export/pdf/', '_blank');
+    }
+</script>
+{% endblock %}

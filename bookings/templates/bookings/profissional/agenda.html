@@ -1,0 +1,232 @@
+{% extends 'bookings/profissional/base.html' %}
+
+{% block title %}Agenda - Profissional{% endblock %}
+
+{% block header_title %}📅 Agenda{% endblock %}
+{% block header_subtitle %}{{ selected_date|date:"d/m/Y (l)" }}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- Navegação de Data -->
+<div class="card-mobile">
+    <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">Selecionar Data</h6>
+            <input type="date" class="form-control form-control-sm w-auto" 
+                   value="{{ selected_date|date:'Y-m-d' }}" 
+                   onchange="window.location.href='?date='+this.value">
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas do Dia -->
+<div class="row g-2 mb-3">
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-value text-primary">{{ total_agendamentos }}</div>
+            <div class="stat-label">Agendamentos</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-value text-success">{{ slots_livres }}</div>
+            <div class="stat-label">Livres</div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="stat-card">
+            <div class="stat-value text-info">R$ {{ faturamento_dia|floatformat:0 }}</div>
+            <div class="stat-label">Faturamento</div>
+        </div>
+    </div>
+</div>
+
+<!-- Agendamentos do Dia -->
+{% if agendamentos %}
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-list-check text-primary me-2"></i>
+            Agendamentos do Dia ({{ total_agendamentos }})
+        </h6>
+        
+        {% for booking in agendamentos %}
+        <div class="agendamento-item {% if booking.status == 'CONFIRMED' %}confirmed{% elif booking.status == 'PENDING' %}pending{% else %}cancelled{% endif %}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="cliente-info flex-grow-1">
+                    <div class="cliente-avatar">{{ booking.customer_name|first|upper }}</div>
+                    <div class="flex-grow-1">
+                        <p class="cliente-name">{{ booking.customer_name }}</p>
+                        <p class="cliente-phone">{{ booking.customer_phone }}</p>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="text-primary fw-bold fs-5">{{ booking.start_time|time:"H:i" }}</div>
+                    <span class="status-badge status-{{ booking.status|lower }}">{{ booking.get_status_display }}</span>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <div class="fw-semibold">{{ booking.service.name }}</div>
+                    <small class="text-muted">Agendado em {{ booking.created_at|date:"d/m H:i" }}</small>
+                </div>
+                <div class="text-success fw-bold">R$ {{ booking.service.price_real|floatformat:2 }}</div>
+            </div>
+            
+            <div class="quick-actions">
+                {% if booking.status == 'PENDING' %}
+                    <button class="btn btn-sm btn-success" onclick="updateStatus({{ booking.id }}, 'CONFIRMED')">
+                        <i class="bi bi-check-lg"></i> Confirmar
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="updateStatus({{ booking.id }}, 'CANCELLED')">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                {% elif booking.status == 'CONFIRMED' %}
+                    <button class="btn btn-sm btn-outline-warning" onclick="updateStatus({{ booking.id }}, 'PENDING')">
+                        <i class="bi bi-arrow-clockwise"></i> Pendente
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="updateStatus({{ booking.id }}, 'CANCELLED')">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                {% else %}
+                    <button class="btn btn-sm btn-outline-success" onclick="updateStatus({{ booking.id }}, 'CONFIRMED')">
+                        <i class="bi bi-arrow-clockwise"></i> Reativar
+                    </button>
+                {% endif %}
+                <a href="{{ booking.whatsapp_url }}" class="btn btn-sm btn-whatsapp" target="_blank">
+                    <i class="bi bi-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Horários Livres -->
+{% if available_times %}
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-clock text-success me-2"></i>
+            Horários Disponíveis ({{ available_times|length }})
+        </h6>
+        
+        <div class="row g-2">
+            {% for time in available_times %}
+            <div class="col-4 col-md-3">
+                <div class="text-center p-2 bg-light rounded">
+                    <div class="fw-semibold text-success">{{ time|time:"H:i" }}</div>
+                    <small class="text-muted">Livre</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Navegação Rápida de Datas -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title">Navegar por Data</h6>
+        
+        <div class="d-flex gap-2 overflow-auto">
+            {% for i in "0123456" %}
+                {% with date_offset=forloop.counter0 %}
+                    {% with nav_date=selected_date|adddays:date_offset %}
+                    <a href="?date={{ nav_date|date:'Y-m-d' }}" 
+                       class="btn btn-sm {% if nav_date == selected_date %}btn-primary{% else %}btn-outline-primary{% endif %} flex-shrink-0">
+                        <div class="text-center">
+                            <div class="fw-bold">{{ nav_date|date:"d" }}</div>
+                            <small>{{ nav_date|date:"D" }}</small>
+                        </div>
+                    </a>
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if not agendamentos %}
+<div class="text-center py-5">
+    <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+    <h5 class="text-muted mt-3">Nenhum agendamento</h5>
+    <p class="text-muted">Não há agendamentos para {{ selected_date|date:"d/m/Y" }}.</p>
+    
+    {% if available_times %}
+    <p class="text-success">✅ {{ available_times|length }} horário{{ available_times|length|pluralize }} disponível{{ available_times|length|pluralize:"" }}</p>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Atualizar automaticamente a cada 1 minuto
+    setTimeout(() => {
+        location.reload();
+    }, 60000);
+    
+    // Atualizar status do agendamento
+    async function updateStatus(bookingId, status) {
+        try {
+            const response = await fetch(`/profissional/agendamento/${bookingId}/update-status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ status: status })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Recarregar página para mostrar mudanças
+                location.reload();
+            } else {
+                alert('Erro: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao atualizar status');
+        }
+    }
+    
+    // Adicionar filtro customizado adddays (simulado via JS para navegação)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gerar navegação dinâmica de datas
+        const currentDate = new Date('{{ selected_date|date:"Y-m-d" }}');
+        const navContainer = document.querySelector('.d-flex.gap-2.overflow-auto');
+        
+        if (navContainer) {
+            navContainer.innerHTML = ''; // Limpar
+            
+            for (let i = 0; i < 7; i++) {
+                const navDate = new Date(currentDate);
+                navDate.setDate(navDate.getDate() + i);
+                
+                const dateStr = navDate.toISOString().split('T')[0];
+                const isSelected = dateStr === '{{ selected_date|date:"Y-m-d" }}';
+                
+                const btn = document.createElement('a');
+                btn.href = `?date=${dateStr}`;
+                btn.className = `btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-primary'} flex-shrink-0`;
+                btn.innerHTML = `
+                    <div class="text-center">
+                        <div class="fw-bold">${navDate.getDate()}</div>
+                        <small>${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][navDate.getDay()]}</small>
+                    </div>
+                `;
+                
+                navContainer.appendChild(btn);
+            }
+        }
+    });
+</script>
+{% endblock %}

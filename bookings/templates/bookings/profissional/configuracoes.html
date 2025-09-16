@@ -1,0 +1,369 @@
+{% extends 'bookings/profissional/base.html' %}
+
+{% block title %}Configurações - Profissional{% endblock %}
+
+{% block header_title %}⚙️ Configurações{% endblock %}
+{% block header_subtitle %}Personalizar Sistema{% endblock %}
+
+{% block content %}
+
+<!-- Perfil Profissional -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-person-circle text-primary me-2"></i>
+            Perfil Profissional
+        </h6>
+        
+        <form method="post" action="{% url 'professional_configuracoes' %}">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label class="form-label">Nome do Negócio</label>
+                <input type="text" class="form-control" name="business_name" 
+                       value="{{ business_name|default:'Meu Salão' }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control" name="business_description" rows="3" 
+                          placeholder="Descreva seu negócio...">{{ business_description|default:'' }}</textarea>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" class="form-control" name="business_phone" 
+                           value="{{ business_phone|default:'' }}" placeholder="(11) 99999-9999">
+                </div>
+                <div class="col-6">
+                    <label class="form-label">WhatsApp</label>
+                    <input type="tel" class="form-control" name="whatsapp_number" 
+                           value="{{ whatsapp_number|default:'' }}" placeholder="5511999999999">
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Endereço</label>
+                <input type="text" class="form-control" name="business_address" 
+                       value="{{ business_address|default:'' }}" placeholder="Rua, número, bairro">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Salvar Perfil
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Horário de Funcionamento -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-clock text-success me-2"></i>
+            Horário de Funcionamento
+        </h6>
+        
+        <form method="post" action="{% url 'professional_configuracoes' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="horarios">
+            
+            {% for day in days_of_week %}
+            <div class="horario-day">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="day_{{ day.0 }}_active" 
+                               id="day_{{ day.0 }}" {% if day.2 %}checked{% endif %}>
+                        <label class="form-check-label fw-semibold" for="day_{{ day.0 }}">
+                            {{ day.1 }}
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="row g-2" id="times_{{ day.0 }}" {% if not day.2 %}style="display: none;"{% endif %}>
+                    <div class="col-6">
+                        <label class="form-label small">Abertura</label>
+                        <input type="time" class="form-control form-control-sm" 
+                               name="day_{{ day.0 }}_start" value="{{ day.3|default:'09:00' }}">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small">Fechamento</label>
+                        <input type="time" class="form-control form-control-sm" 
+                               name="day_{{ day.0 }}_end" value="{{ day.4|default:'18:00' }}">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn btn-success mt-3">
+                <i class="bi bi-check-lg"></i> Salvar Horários
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Serviços Oferecidos -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center justify-content-between">
+            <span>
+                <i class="bi bi-scissors text-warning me-2"></i>
+                Serviços Oferecidos
+            </span>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                <i class="bi bi-plus-lg"></i> Adicionar
+            </button>
+        </h6>
+        
+        {% for service in services %}
+        <div class="service-config-item">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ service.name }}</div>
+                    <div class="text-success fw-bold">R$ {{ service.price_real|floatformat:2 }}</div>
+                    <small class="text-muted">Criado em {{ service.created_at|date:"d/m/Y" }}</small>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="editService({{ service.id }})">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteService({{ service.id }})">
+                            <i class="bi bi-trash"></i> Excluir
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Notificações -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-bell text-info me-2"></i>
+            Notificações
+        </h6>
+        
+        <form method="post" action="{% url 'professional_configuracoes' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="notifications">
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="email_notifications" 
+                       id="emailNotif" {% if email_notifications %}checked{% endif %}>
+                <label class="form-check-label" for="emailNotif">
+                    📧 Notificações por Email
+                </label>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="whatsapp_notifications" 
+                       id="whatsappNotif" {% if whatsapp_notifications %}checked{% endif %}>
+                <label class="form-check-label" for="whatsappNotif">
+                    📱 Notificações WhatsApp
+                </label>
+            </div>
+            
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="auto_confirm" 
+                       id="autoConfirm" {% if auto_confirm %}checked{% endif %}>
+                <label class="form-check-label" for="autoConfirm">
+                    ✅ Confirmação Automática
+                </label>
+                <div class="form-text">Confirmar agendamentos automaticamente após 1 hora</div>
+            </div>
+            
+            <button type="submit" class="btn btn-info">
+                <i class="bi bi-check-lg"></i> Salvar Notificações
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Backup e Dados -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-cloud-download text-secondary me-2"></i>
+            Backup e Dados
+        </h6>
+        
+        <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" onclick="exportarDados()">
+                <i class="bi bi-download"></i> Exportar Todos os Dados
+            </button>
+            
+            <button class="btn btn-outline-success" onclick="backupAgendamentos()">
+                <i class="bi bi-calendar-check"></i> Backup Agendamentos
+            </button>
+            
+            <button class="btn btn-outline-warning" onclick="limparDadosAntigos()">
+                <i class="bi bi-trash3"></i> Limpar Dados Antigos (90+ dias)
+            </button>
+        </div>
+        
+        <div class="mt-3 p-2 bg-light rounded">
+            <small class="text-muted">
+                <i class="bi bi-info-circle"></i>
+                Último backup: {{ ultimo_backup|default:"Nunca"|date:"d/m/Y H:i" }}
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Sistema -->
+<div class="card-mobile">
+    <div class="card-body">
+        <h6 class="card-title d-flex align-items-center">
+            <i class="bi bi-gear text-dark me-2"></i>
+            Sistema
+        </h6>
+        
+        <div class="system-info">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Versão:</span>
+                <span class="fw-bold">v2.0.0</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Última atualização:</span>
+                <span>{{ ultima_atualizacao|date:"d/m/Y" }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Total de agendamentos:</span>
+                <span class="text-primary fw-bold">{{ total_agendamentos_sistema }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Espaço usado:</span>
+                <span>{{ espaco_usado|default:"< 1" }} MB</span>
+            </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-3">
+            <a href="/dev-admin-panel-2025/" class="btn btn-outline-dark" target="_blank">
+                <i class="bi bi-tools"></i> Painel Desenvolvedor
+            </a>
+            
+            <button class="btn btn-outline-danger" onclick="confirmarReset()">
+                <i class="bi bi-arrow-clockwise"></i> Reset Completo
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Adicionar Serviço -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">➕ Novo Serviço</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'professional_configuracoes' %}">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="add_service">
+                
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Serviço</label>
+                        <input type="text" class="form-control" name="service_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Preço (R$)</label>
+                        <input type="number" class="form-control" name="service_price" 
+                               step="0.01" min="0" required>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Serviço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle horários por dia
+    document.querySelectorAll('input[type="checkbox"][id^="day_"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const dayNumber = this.id.replace('day_', '');
+            const timesDiv = document.getElementById('times_' + dayNumber);
+            
+            if (this.checked) {
+                timesDiv.style.display = 'block';
+            } else {
+                timesDiv.style.display = 'none';
+            }
+        });
+    });
+    
+    function editService(serviceId) {
+        // Implementar edição de serviço
+        alert('Funcionalidade de edição em desenvolvimento');
+    }
+    
+    function deleteService(serviceId) {
+        if (confirm('Tem certeza que deseja excluir este serviço?')) {
+            // Implementar exclusão
+            window.location.href = `/profissional/configuracoes/delete-service/${serviceId}/`;
+        }
+    }
+    
+    function exportarDados() {
+        window.open('/profissional/configuracoes/export-data/', '_blank');
+    }
+    
+    function backupAgendamentos() {
+        window.open('/profissional/configuracoes/backup-bookings/', '_blank');
+    }
+    
+    function limparDadosAntigos() {
+        if (confirm('Isso irá remover agendamentos com mais de 90 dias. Continuar?')) {
+            fetch('/profissional/configuracoes/clean-old-data/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            }).then(response => {
+                if (response.ok) {
+                    alert('Dados antigos removidos com sucesso!');
+                    location.reload();
+                }
+            });
+        }
+    }
+    
+    function confirmarReset() {
+        if (confirm('ATENÇÃO: Isso irá apagar TODOS os dados do sistema!\n\nTem certeza absoluta?')) {
+            if (confirm('Esta ação é IRREVERSÍVEL!\n\nDigite "CONFIRMAR" na próxima caixa para continuar.')) {
+                const confirmacao = prompt('Digite "CONFIRMAR" para prosseguir:');
+                if (confirmacao === 'CONFIRMAR') {
+                    fetch('/profissional/configuracoes/reset-system/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            alert('Sistema resetado com sucesso!');
+                            window.location.href = '/';
+                        }
+                    });
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

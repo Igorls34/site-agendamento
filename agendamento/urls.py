@@ -19,8 +19,8 @@ from django.urls import path, include
 from bookings.views import favicon_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('painel-admin/', include('bookings.admin_urls')),  # URLs admin separadas
+    path('dev-admin-panel-2025/', admin.site.urls),  # URL oculta para desenvolvedor
+    path('profissional/', include('bookings.admin_urls')),  # Nova interface para profissional
     path('favicon.ico', favicon_view, name='favicon'),
     path('', include('bookings.urls')),
 ]

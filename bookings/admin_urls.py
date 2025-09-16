@@ -1,11 +1,15 @@
 from django.urls import path
-from . import views
+from . import professional_views
 
-app_name = 'admin_panel'
+app_name = 'profissional'
 
 urlpatterns = [
-    # Dashboard administrativo
-    path('', views.admin_dashboard, name='dashboard'),
-    path('agenda/', views.admin_agenda, name='agenda'),
-    path('editar-agendamento/<int:booking_id>/', views.admin_editar_booking, name='editar_booking'),
+    # Dashboard principal mobile-first
+    path('', professional_views.dashboard, name='dashboard'),
+    path('agenda/', professional_views.agenda, name='agenda'),
+    path('agenda/<str:date>/', professional_views.agenda_data, name='agenda_data'),
+    path('agendamento/<int:booking_id>/', professional_views.agendamento_detail, name='agendamento_detail'),
+    path('agendamento/<int:booking_id>/status/', professional_views.update_status, name='update_status'),
+    path('relatorios/', professional_views.relatorios, name='relatorios'),
+    path('configuracoes/', professional_views.configuracoes, name='configuracoes'),
 ]
