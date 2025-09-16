@@ -37,9 +37,6 @@ def dashboard(request):
     # Adicionar WhatsApp URLs
     for booking in proximos_agendamentos:
         booking.whatsapp_url = build_whatsapp_url(booking)
-        # Adicionar campos para compatibilidade com template
-        booking.customer_name = booking.name
-        booking.customer_phone = booking.phone
     
     # Agendamentos pendentes (precisam confirmação)
     pendentes = Booking.objects.filter(
@@ -48,9 +45,6 @@ def dashboard(request):
     
     for booking in pendentes:
         booking.whatsapp_url = build_whatsapp_url(booking)
-        # Adicionar campos para compatibilidade com template
-        booking.customer_name = booking.name
-        booking.customer_phone = booking.phone
     
     # Faturamento da semana
     start_week = today - timedelta(days=today.weekday())
@@ -284,21 +278,21 @@ def relatorios(request):
     clientes_data = {}
     
     for booking in agendamentos_periodo:
-        if booking.name not in clientes_data:
-            clientes_data[booking.name] = {
-                'name': booking.name,
-                'phone': booking.phone,
+        if booking.customer_name not in clientes_data:
+            clientes_data[booking.customer_name] = {
+                'name': booking.customer_name,
+                'phone': booking.customer_phone,
                 'agendamentos_count': 0,
                 'total_gasto': 0,
                 'ultimo_agendamento': booking.date
             }
         
-        clientes_data[booking.name]['agendamentos_count'] += 1
+        clientes_data[booking.customer_name]['agendamentos_count'] += 1
         if booking.status == 'CONFIRMED':
-            clientes_data[booking.name]['total_gasto'] += booking.service.price_cents / 100
+            clientes_data[booking.customer_name]['total_gasto'] += booking.service.price_cents / 100
         
-        if booking.date > clientes_data[booking.name]['ultimo_agendamento']:
-            clientes_data[booking.name]['ultimo_agendamento'] = booking.date
+        if booking.date > clientes_data[booking.customer_name]['ultimo_agendamento']:
+            clientes_data[booking.customer_name]['ultimo_agendamento'] = booking.date
     
     clientes_fieis = sorted(
         [cliente for cliente in clientes_data.values() if cliente['agendamentos_count'] >= 2],
