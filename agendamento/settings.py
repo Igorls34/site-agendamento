@@ -25,10 +25,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-vl@*&6ol)_i$a&8a-4=r71ibnqd*v(k-iwt*$dmra^$m4t)8eu')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Temporariamente TRUE para diagnosticar erro 502
-DEBUG = True  # os.environ.get('DEBUG', 'False').lower() == 'true'
+# Produção: DEBUG baseado na variável de ambiente
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']  # Aceitar todos os hosts temporariamente
+# Hosts permitidos - Railway e localhost
+ALLOWED_HOSTS = [
+    'site-agendamento-production.up.railway.app',
+    '127.0.0.1',
+    'localhost',
+    '.railway.app',  # Qualquer subdomínio railway.app
+]
 
 
 # Application definition
@@ -198,23 +204,23 @@ DEFAULT_DAILY_TIMES = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00']
 WHATSAPP_BUSINESS_NUMBER = "5524998190280"  # +55 24 99819-0280
 
 # Configurações específicas para Railway (produção)
-# Temporariamente comentado para debugging
-"""
-if 'RAILWAY_ENVIRONMENT' in os.environ:
-    # Forçar configurações de produção
-    DEBUG = False
-    ALLOWED_HOSTS = ['*']
-    
-    # Configurações de segurança
+if not DEBUG and os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Configurações de segurança para produção
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = 'same-origin'
+    SECURE_HSTS_SECONDS = 31536000  # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # Configuração de sessões seguras
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
     
     # Configuração de arquivos estáticos para Railway
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-"""
     
 # Logging para debugging
 LOGGING = {
