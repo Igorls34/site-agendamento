@@ -31,6 +31,13 @@ DEBUG = True
 # Hosts permitidos - Temporariamente permissivo
 ALLOWED_HOSTS = ['*']
 
+# Origens confiáveis para CSRF - Railway
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-da99.up.railway.app',
+    'https://site-agendamento-production.up.railway.app',
+    'https://*.up.railway.app',
+]
+
 
 # Application definition
 
