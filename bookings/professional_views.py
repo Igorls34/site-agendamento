@@ -43,7 +43,7 @@ def login_view(request):
 def logout_view(request):
     """View de logout"""
     logout(request)
-    return redirect('home')
+    return redirect('bookings:home')
 
 
 @login_required
