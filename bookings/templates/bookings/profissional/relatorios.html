@@ -7,6 +7,17 @@
 
 {% block content %}
 
+<!-- Aviso sobre funcionalidades em desenvolvimento -->
+<div class="alert alert-warning border-0 rounded-3 mb-3" style="display: none;">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+        <div>
+            <strong>🚧 Atenção:</strong> Exportação PDF/CSV temporariamente desabilitada para melhorias. 
+            <small class="d-block text-muted mt-1">Todos os dados estão disponíveis para visualização na tela.</small>
+        </div>
+    </div>
+</div>
+
 <!-- Período de Análise -->
 <div class="card-mobile">
     <div class="card-body">
@@ -288,6 +299,10 @@
     }
     
     function exportarCSV() {
+        // Temporariamente desabilitado
+        alert('🚧 Exportação CSV temporariamente desabilitada\n\nEsta funcionalidade será reativada em breve.\nPor enquanto, use a visualização na tela para acompanhar os dados.');
+        return;
+        
         const startDate = document.getElementById('start_date').value;
         const endDate = document.getElementById('end_date').value;
         const url = `{% url 'profissional:exportar_csv' %}?start_date=${startDate}&end_date=${endDate}`;
@@ -295,6 +310,10 @@
     }
     
     function gerarPDF() {
+        // Temporariamente desabilitado
+        alert('🚧 Geração de PDF temporariamente desabilitada\n\nEsta funcionalidade será reativada em breve.\nPor enquanto, use a visualização na tela para acompanhar os relatórios.');
+        return;
+        
         const startDate = document.getElementById('start_date').value;
         const endDate = document.getElementById('end_date').value;
         const url = `{% url 'profissional:exportar_pdf' %}?start_date=${startDate}&end_date=${endDate}`;

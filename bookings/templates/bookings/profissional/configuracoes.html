@@ -7,6 +7,17 @@
 
 {% block content %}
 
+<!-- Aviso sobre funcionalidades em desenvolvimento -->
+<div class="alert alert-info border-0 rounded-3 mb-3">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle-fill text-primary me-2"></i>
+        <div>
+            <strong>ℹ️ Informação:</strong> Algumas funcionalidades estão temporariamente desabilitadas para melhorias. 
+            <small class="d-block text-muted mt-1">O sistema principal continua funcionando normalmente.</small>
+        </div>
+    </div>
+</div>
+
 <!-- Perfil Profissional -->
 <div class="card-mobile">
     <div class="card-body">
@@ -300,26 +311,36 @@
     });
     
     function editService(serviceId) {
-        // Implementar edição de serviço
-        alert('Funcionalidade de edição em desenvolvimento');
+        // Funcionalidade de edição não implementada
+        alert('🚧 Funcionalidade em desenvolvimento\n\nA edição de serviços será implementada em breve.\nPor enquanto, você pode editar serviços no painel administrativo: /admin/');
     }
     
     function deleteService(serviceId) {
-        if (confirm('Tem certeza que deseja excluir este serviço?')) {
-            // Implementar exclusão
-            window.location.href = `/profissional/configuracoes/delete-service/${serviceId}/`;
-        }
+        // Funcionalidade de exclusão não implementada
+        alert('🚧 Funcionalidade em desenvolvimento\n\nA exclusão de serviços será implementada em breve.\nPor enquanto, você pode desativar o serviço no painel administrativo.');
     }
     
     function exportarDados() {
+        // Temporariamente desabilitado
+        alert('🚧 Exportação de dados temporariamente desabilitada\n\nEsta funcionalidade será reativada em breve.\nOs dados estão seguros e podem ser acessados via painel administrativo.');
+        return;
+        
         window.open('{% url "profissional:backup_dados" %}', '_blank');
     }
     
     function backupAgendamentos() {
+        // Temporariamente desabilitado
+        alert('🚧 Backup temporariamente desabilitado\n\nEsta funcionalidade será reativada em breve.\nOs dados são automaticamente salvos no banco de dados.');
+        return;
+        
         window.open('{% url "profissional:backup_dados" %}', '_blank');
     }
     
     function limparDadosAntigos() {
+        // Temporariamente desabilitado
+        alert('🚧 Limpeza de dados temporariamente desabilitada\n\nEsta funcionalidade será reativada em breve.\nOs dados antigos não afetam o desempenho do sistema.');
+        return;
+        
         if (confirm('Isso irá remover agendamentos com mais de 6 meses. Continuar?')) {
             fetch('{% url "profissional:limpar_antigos" %}', {
                 method: 'POST',
