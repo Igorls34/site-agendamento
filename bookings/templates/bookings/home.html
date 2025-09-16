@@ -25,7 +25,6 @@
                         </div>
                         <h5 class="card-title">{{ service.name }}</h5>
                         <p class="card-text text-muted">
-                            <strong>Duração:</strong> {{ service.duration_minutes }} minutos<br>
                             <strong>Valor:</strong> R$ {{ service.price_real|floatformat:2 }}
                         </p>
                         <a href="{% url 'bookings:agendar' %}?service={{ service.id }}" 

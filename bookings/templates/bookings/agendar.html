@@ -29,7 +29,7 @@
                                         onchange="document.getElementById('filtroForm').submit()">
                                     {% for svc in services %}
                                     <option value="{{ svc.id }}" {% if svc.id == selected_service_id %}selected{% endif %}>
-                                        {{ svc.name }} - R$ {{ svc.price_real|floatformat:2 }} ({{ svc.duration_minutes }}min)
+                                        {{ svc.name }} - R$ {{ svc.price_real|floatformat:2 }}
                                     </option>
                                     {% endfor %}
                                 </select>

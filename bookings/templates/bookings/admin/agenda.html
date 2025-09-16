@@ -90,8 +90,7 @@
                         <p class="card-text">
                             <strong><i class="bi bi-person me-1"></i></strong> {{ booking.customer_name }}<br>
                             <strong><i class="bi bi-telephone me-1"></i></strong> {{ booking.customer_phone }}<br>
-                            <strong><i class="bi bi-currency-dollar me-1"></i></strong> R$ {{ booking.service.price_real|floatformat:2 }}<br>
-                            <strong><i class="bi bi-clock me-1"></i></strong> {{ booking.service.duration_minutes }} min
+                            <strong><i class="bi bi-currency-dollar me-1"></i></strong> R$ {{ booking.service.price_real|floatformat:2 }}
                         </p>
                         <small class="text-muted">
                             Agendado em: {{ booking.created_at|date:"d/m H:i" }}
