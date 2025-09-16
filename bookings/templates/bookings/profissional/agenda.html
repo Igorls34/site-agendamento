@@ -133,20 +133,8 @@
     <div class="card-body">
         <h6 class="card-title">Navegar por Data</h6>
         
-        <div class="d-flex gap-2 overflow-auto">
-            {% for i in "0123456" %}
-                {% with date_offset=forloop.counter0 %}
-                    {% with nav_date=selected_date|adddays:date_offset %}
-                    <a href="?date={{ nav_date|date:'Y-m-d' }}" 
-                       class="btn btn-sm {% if nav_date == selected_date %}btn-primary{% else %}btn-outline-primary{% endif %} flex-shrink-0">
-                        <div class="text-center">
-                            <div class="fw-bold">{{ nav_date|date:"d" }}</div>
-                            <small>{{ nav_date|date:"D" }}</small>
-                        </div>
-                    </a>
-                    {% endwith %}
-                {% endwith %}
-            {% endfor %}
+        <div class="d-flex gap-2 overflow-auto" id="date-navigation">
+            <!-- Navegação será gerada via JavaScript -->
         </div>
     </div>
 </div>
@@ -202,7 +190,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Gerar navegação dinâmica de datas
         const currentDate = new Date('{{ selected_date|date:"Y-m-d" }}');
-        const navContainer = document.querySelector('.d-flex.gap-2.overflow-auto');
+        const navContainer = document.getElementById('date-navigation');
         
         if (navContainer) {
             navContainer.innerHTML = ''; // Limpar
